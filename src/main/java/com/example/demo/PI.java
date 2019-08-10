@@ -540,7 +540,7 @@ catch (SQLException e) {
 	public Map<String,String> admin_approve(@RequestBody Map<String, Object> payload) throws Exception{
 		if(admin_log) {
 			PastInfo p = new PastInfo();
-			Map<String, String> s = p.validateteaching(payload);
+			Map<String, String> s = p.approval_list(payload);
 					
 		Map<String, String> emp_temp = new HashMap<String, String>();
 		emp_temp.put("Query","Query Excecuted");
@@ -646,11 +646,155 @@ System.out.println("Approval pending");
 	@PostMapping("/pi/emp/salary_certificate")
 	public Map<String,String> salary_request(@RequestBody Map<String, Object> payload) throws Exception {
 		Map<String, String> salary = new HashMap<String, String>();
+		System.out.println("hello");
 		Salary_certificate s = new Salary_certificate();
+		s.req(payload);
+		
+	    salary.put("Status","Request Pending");
+		return salary;
+		
+	}
+	
+	//request
+		@PostMapping("/pi/emp/salary_check")
+		public Map<String, String> salary_check(@RequestBody Map<String, Object> payload) throws Exception {
+			Map<String, String> salary = new HashMap<String, String>();
+			Salary_certificate s = new Salary_certificate();
+			return s.check_req(payload);
+		   
+		}
+		
+	
+		//LIVE REQUEST HOD
+		@GetMapping("/pi/emp/livehod")
+		public Map<String, String> livehod() throws Exception {
+			
+			Salary_certificate s = new Salary_certificate();
+			return s.live_reqhod();
+				
+		   
+		}
+		
+		
+		//LIVE REQUEST PRINCIPAL
+				@GetMapping("/pi/emp/liveprincipal")
+				public Map<String, String> liveprincipal() throws Exception {
+					
+					Salary_certificate s = new Salary_certificate();
+					return s.live_requestp();
+						
+				   
+				}
+
+		
+	
+	
+	//
+	/*@GetMapping("/pi/emp/changedesignation")
+	public Map<String,String> changed(@RequestBody Map<String, Object> payload) throws Exception {
+		
+		Map<String, String> salary = new HashMap<String, String>();
+		String newdesign=(String)payload.get("newdesign");//STAFF ENTERS NEW EMPLOYEE
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date tempdate1 = sdf1.parse((String)payload.get("datestart"));
+		java.util.Date tempdate2= sdf1.parse((String)payload.get("oldend")); //END DATE FOR PREVIOUS DESIGNATION
+	    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
+	    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
+	    Salary_certificate s = new Salary_certificate();
 		s.req(payload);
 	    salary.put("Status","Request Pending");
 		return salary;
 		
+	}
+	*/
+	
+//IF 'request'=false,not handled
+//IF 'request'=true,handled.
+	@PostMapping("/pi/emp/approvehod") //HOD APPROVAL
+	public String approvehod(@RequestBody Map<String, Object> payload) throws Exception{
+		
+		String empid=(String)payload.get("Employee_ID");
+		System.out.println(empid);
+		boolean approval=(boolean)payload.get("hod_approval");
+		
+		String sql="SELECT hod,fin,request FROM public.salary WHERE \"Employee_ID\"='"+ empid +"';";
+		try
+		{
+			Statement stmt = db.connect().createStatement();
+			ResultSet rs=stmt.executeQuery(sql);//problem here
+			while(rs.next())
+			{
+				boolean request=rs.getBoolean("request");
+       			boolean fin=rs.getBoolean("fin");
+				if( fin==false && request==false)
+				{	//latest request of salary certificate
+					String sql1="UPDATE public.salary SET hod=? WHERE \"Employee_ID\"='"+empid+"';";
+					PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+					stmt1.setBoolean(1,approval);
+					stmt1.executeUpdate();	
+					return "HOD decision done";
+				}
+				
+			}
+					
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}	
+		return "Unsuccessful attempt";
+	}
+	
+	
+	
+	@PostMapping("/pi/emp/approveprinci") //PRINCIPAL APPROVAL
+	public String approvep(@RequestBody Map<String, Object> payload) throws Exception{
+		
+		String empid=(String)payload.get("Employee_ID");
+		boolean approval=(boolean)payload.get("principal_approval");
+		
+		String sql="SELECT principal, \"Employee_ID\", hod,fin\r\n" + 
+				"	FROM public.salary where \"Employee_ID\"='"+ empid +"';";
+		
+		try
+		{
+			Statement stmt = db.connect().createStatement();
+			ResultSet rs=stmt.executeQuery(sql);
+			while(rs.next())
+			{
+				System.out.println("hello");//works till here.
+				boolean hod=rs.getBoolean("hod");
+				
+				boolean fin=rs.getBoolean("fin");//IF FINAL IS SET FALSE THEN REJECTED OLD REQUEST/NOT APPROVED YET.
+				//IF PRINCIPAL REJECTS,HOD VALUE IS ALSO BY DEFAULT FALSE.
+				
+				if(fin==false && hod==true && approval==true)
+				{	//latest request of salary certificate
+					String sql1="UPDATE public.salary SET principal='"+approval+"',fin='"+approval+"',request='"+approval+"' where \"Employee_ID\"='"+ empid +"';";
+					PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+				
+					stmt1.executeUpdate();	
+					System.out.println("done");
+					return "Principal decision done";
+				}
+				else if(fin==false && hod==false)
+				{
+					
+					String sql1="UPDATE public.salary SET principal='"+hod+"',fin='"+fin+"',request='"+fin+"' where \"Employee_ID\"='"+ empid +"';";
+					PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+					
+					stmt1.executeUpdate();	
+					return "Rejected";
+				}
+			}
+		}
+		catch (SQLException e) {
+			
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}		
+		return "Unsuccessful attempt";
 	}
 	
 	//
@@ -665,20 +809,8 @@ System.out.println("Approval pending");
 	    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
 	    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
 	    
-//	    String sql="UPDATE public.pastteaching SET  "
+//	    String sql="insert  public.pastteaching   "
 	    
-
-	    
-	    
-	    
-	    
-	    
-		
-		
-				
-		
-		Salary_certificate s = new Salary_certificate();
-		s.req(payload);
 	    salary.put("Status","Request Pending");
 		return salary;
 		

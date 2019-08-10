@@ -58,10 +58,11 @@ public class Personal {
 		try{
 			Statement st = db.connect().createStatement();
 			ResultSet rs = st.executeQuery(sqlcheck);
-			rs.next();
+			while(rs.next()) {
 			if(empid.equals(rs.getString("Employee_ID"))) {
 				return "Employee already created";    
 		}
+			}
 		}
 		catch (SQLException e) {
 			

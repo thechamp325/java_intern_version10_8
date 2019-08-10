@@ -253,7 +253,7 @@ public class PastInfo {//tested all functions
 		
 		
 		
-	public Map<String, String> validateteaching( Map<String, Object> payload) throws SQLException {//tested
+	public Map<String, String> approval_list( Map<String, Object> payload) throws SQLException {//tested
 			
 			String empid=(String)payload.get("employee_id");
 		   		
