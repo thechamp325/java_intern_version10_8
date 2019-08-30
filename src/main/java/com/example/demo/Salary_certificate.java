@@ -28,10 +28,10 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 	
 	
 	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-	java.util.Date date2 = sdf1.parse((String)payload.get("from_date"));
+	java.util.Date date2 = sdf1.parse((String)payload.get("from_month"));
 	Date from_date = new java.sql.Date(date2.getTime()); 
 	
-	java.util.Date date1 = sdf1.parse((String)payload.get("to_date"));
+	java.util.Date date1 = sdf1.parse((String)payload.get("to_month"));
 	Date to_date = new java.sql.Date(date1.getTime()); 
 	
 	
@@ -100,32 +100,48 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 	Map<String, String> map = new HashMap<String, String>();
 
 		
-	String sql="SELECT salary_id, principal, hod, \"Employee_ID\", fin, from_date, to_date, date,request\r\n" + 
-			"	FROM public.salary;";
+	String sql="SELECT * FROM public.salary where \"Employee_ID\" = '"+empid+"';";
 	Statement stmt = db.connect().createStatement();
 	ResultSet rs=stmt.executeQuery(sql);
-	
-	while(rs.next())
-	{
+	int i=1;
+	while(i==1&&rs.next()){ 
+		i=2;
 		try {
-			 emp=rs.getString(4);
+			 emp=rs.getString("Employee_ID");
 			 
-			 fromdate=rs.getDate(6);
+			 fromdate=rs.getDate("from_date");
 			
 			 SimpleDateFormat simpleDateformat = new SimpleDateFormat("MMMM-YYYY");
 			
-			 todate=rs.getDate(7);
+			 todate=rs.getDate("to_date");
 			
 			
 			//REQUIRED RECORD FOUND
-			if(emp.contentEquals(empid) )
-			{
+			
 				//IF FINAL IS FALSE,THEN IT COULD BE INCOMPLETE PROCESS OR A PREVIOUS REJECTED REQUEST.
 				boolean field1=rs.getBoolean("principal"); //PRINCIPAL APPROVAL
 				boolean field2=rs.getBoolean("hod"); //HOD APPROVAL
 				boolean field3=rs.getBoolean("fin"); //FINAL APPROVAL
 				boolean field4=rs.getBoolean("request"); //handled?
-				if( field1==true && field2==true && field3==true && field4==false )
+				boolean field5= rs.getBoolean("admin_approval");//if admin printed the report
+				
+				if(field3==false) 
+				{
+					String PRINCIPAL = Boolean.toString(field1);
+					String HOD = Boolean.toString(field2);
+					String ADMIN = Boolean.toString(field5);
+					String TYPE = "Salary Certificate";
+
+					map.put("PRINCIPAL",PRINCIPAL);
+					map.put("PRINCIPAL",HOD);
+					map.put("PRINCIPAL",ADMIN);
+					map.put("PRINCIPAL",TYPE);
+					return map;
+
+					
+						
+				}
+				else if( field1==true && field2==true && field3==true && field4==false )
 				{
 					
 					String sql4="SELECT \"ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
@@ -285,7 +301,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					return map;	
 				}
 				
-			}
+			
 			
 		}
 		catch (SQLException e) {
@@ -296,7 +312,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 		}
 		
 	}
-	map.put("Not","Succesful");
+	map.put("Status","Not Succesful");
 	return map;
 	
 }

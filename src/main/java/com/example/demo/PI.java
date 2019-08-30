@@ -656,11 +656,17 @@ System.out.println("Approval pending");
 	}
 	
 	//request
-		@PostMapping("/pi/emp/salary_check")
+		@GetMapping("/pi/emp/salary_check")
 		public Map<String, String> salary_check(@RequestBody Map<String, Object> payload) throws Exception {
 			Map<String, String> salary = new HashMap<String, String>();
 			Salary_certificate s = new Salary_certificate();
-			return s.check_req(payload);
+			salary.putAll(s.check_req(payload));
+			
+			Map<String, String> test = new HashMap<String, String>();
+			System.out.println(test.get("PRINCIPAL"));
+			test.put("PRINCIPAL","true");
+
+			return salary;
 		   
 		}
 		
