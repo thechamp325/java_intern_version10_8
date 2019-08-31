@@ -9,16 +9,20 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.qos.logback.core.util.SystemInfo;
 
+import java.util.ArrayList;
 import java.util.Date.*;
 
 @RestController
@@ -657,17 +661,25 @@ System.out.println("Approval pending");
 	
 	//request
 		@GetMapping("/pi/emp/salary_check")
-		public Map<String, String> salary_check(@RequestBody Map<String, Object> payload) throws Exception {
+		public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
+			System.out.println("Here");
+			Map<String, Object> payload = new HashMap<String, Object>();
+			payload.put("Employee_ID",Employee_ID);
+
+			List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 			Map<String, String> salary = new HashMap<String, String>();
+			
 			Salary_certificate s = new Salary_certificate();
+			System.out.println("Here");
 			salary.putAll(s.check_req(payload));
+			mymap.add(0,salary);
 			
 			Map<String, String> test = new HashMap<String, String>();
 			System.out.println(test.get("PRINCIPAL"));
 			test.put("PRINCIPAL","true");
 
-			return salary;
-		   
+			return mymap;
+		 
 		}
 		
 	

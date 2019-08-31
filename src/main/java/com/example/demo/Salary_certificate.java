@@ -87,7 +87,7 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 }
 
 public Map<String, String> check_req(@RequestBody Map<String, Object> payload) throws Exception{
-	
+	System.out.println("Finally here");
 //	String emp_id = (String)payload.get("empid");
 	String empid = "Emp01";
 	String emp;
@@ -124,6 +124,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 				boolean field3=rs.getBoolean("fin"); //FINAL APPROVAL
 				boolean field4=rs.getBoolean("request"); //handled?
 				boolean field5= rs.getBoolean("admin_approval");//if admin printed the report
+				System.out.println(field1+" "+field2+" "+field3+" "+field4+" "+field5);
 				
 				if(field3==false) 
 				{
@@ -132,10 +133,10 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					String ADMIN = Boolean.toString(field5);
 					String TYPE = "Salary Certificate";
 
-					map.put("PRINCIPAL",PRINCIPAL);
-					map.put("PRINCIPAL",HOD);
-					map.put("PRINCIPAL",ADMIN);
-					map.put("PRINCIPAL",TYPE);
+					map.put("Principal",PRINCIPAL);
+					map.put("HOD",HOD);
+					map.put("Admin",ADMIN);
+					map.put("Type",TYPE);
 					return map;
 
 					
