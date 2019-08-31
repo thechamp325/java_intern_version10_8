@@ -358,10 +358,21 @@ System.out.println(rs.getBoolean("fin"));
 		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==false ) {
 			
 			
+//			System.out.println("Here3");
+//			emp_list.put("name"+i, rs1.getString("First_Name"));
+//			emp_list.put("lastname"+i, rs1.getString("Last_Name"));
+//			emp_list.put("EMPID"+i, empid);
+//			emp_list.put("designation"+i, empid);
+//			emp_list.put("TYPE"+i, );
 			System.out.println("Here3");
-			emp_list.put("First_name"+i, rs1.getString("First_Name"));
-			emp_list.put("Last_name"+i, rs1.getString("Last_Name"));
-			emp_list.put("Employee_ID"+i, empid);
+			emp_list.put("name", rs1.getString("First_Name"));
+			emp_list.put("lastname", rs1.getString("Last_Name"));
+			emp_list.put("EMPID", empid);
+			emp_list.put("designation", "Teacher");
+			emp_list.put("Type","Salary certificate");
+
+
+			
 				
 	}
 	
