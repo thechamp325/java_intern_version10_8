@@ -9,8 +9,10 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -350,18 +352,17 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 
 //HOD
 
-public Map<String, String> live_reqhod() throws SQLException {//tested
+public List live_reqhod() throws SQLException {//tested
 	
 	
-   	String false1="false";
+ 	//String false1="false";
 	String sql1="SELECT * FROM public.salary where request= false ;";
-	Map<String, String> emp_list = new HashMap<String, String>();
+	
 	
 	Statement st = db.connect().createStatement();
 	ResultSet rs = st.executeQuery(sql1);
 	rs.next();
 	
-	System.out.println("Here1");
 	String empid=rs.getString("Employee_ID");
 	System.out.println(empid);
 
@@ -371,79 +372,80 @@ public Map<String, String> live_reqhod() throws SQLException {//tested
 	ResultSet rs1 = st2.executeQuery(sql2);
 	rs1.next();
 
-	System.out.println("Here2");
 	String random=rs1.getString("First_Name");
 	System.out.println(random);
 
 System.out.println(rs.getBoolean("fin"));
 
-
+List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 	
 	int j=0;
-	String i;
 	do{
-		j++;
-		i=String.valueOf(j);
+		Map<String, String> emp_list = new HashMap<String, String>();
 		
 		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==false ) {
 			
 			
-//			System.out.println("Here3");
-//			emp_list.put("name"+i, rs1.getString("First_Name"));
-//			emp_list.put("lastname"+i, rs1.getString("Last_Name"));
-//			emp_list.put("EMPID"+i, empid);
-//			emp_list.put("designation"+i, empid);
-//			emp_list.put("TYPE"+i, );
-			System.out.println("Here3");
 			emp_list.put("name", rs1.getString("First_Name"));
 			emp_list.put("lastname", rs1.getString("Last_Name"));
 			emp_list.put("EMPID", empid);
 			emp_list.put("designation", "Teacher");
 			emp_list.put("Type","Salary certificate");
-
-
 			
-				
+			mymap.add(j,emp_list);
+			j++;	
 	}
 	
 	}while(rs.next());
-	System.out.println("4");
-	return emp_list;	
+	return mymap;	
 	}  
 
 //PRINCIPAL
-	public Map<String, String> live_requestp() throws SQLException {
+	public List live_requestp() throws SQLException {
 		
-		//String empid=(String)payload.get("employee_id");
-	   		
 		String sql1="SELECT * FROM public.salary where request = false;";
-		Map<String, String> emp_list = new HashMap<String, String>();
 		
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		int j=0;
-		String i;
-		while (rs.next()){
-			j++;
-			i=String.valueOf(j);
-			String empid=rs.getString("Employee_ID");
-			if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==true && rs.getBoolean("principal")==false) {
-				
-				String sql2="SELECT \"First_Name\", \"Last_Name\" FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
-				ResultSet rs1 = st.executeQuery(sql2);
-				rs1.next();
-				emp_list.put("First_name"+i, rs1.getString("First_Name"));
-				emp_list.put("Last_name"+i, rs1.getString("Last_Name"));
-				emp_list.put("Employee_ID"+i, empid);
-						
-		}
-			
+		rs.next();
 		
-		}  
-		return emp_list;
+		String empid=rs.getString("Employee_ID");
+		System.out.println(empid);
 
+		String sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
+				"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
+		Statement st2 = db.connect().createStatement();
+		ResultSet rs1 = st2.executeQuery(sql2);
+		rs1.next();
+
+		String random=rs1.getString("First_Name");
+		System.out.println(random);
+
+	System.out.println(rs.getBoolean("fin"));
+
+	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+		System.out.println("Starting do-while");
+		int j=0;
+		do{
+			System.out.println("Inside do-while");
+			Map<String, String> emp_list = new HashMap<String, String>();
+			
+			if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==true && rs.getBoolean("principal") == false ) {
+				
+				System.out.println("Inside if");
+				emp_list.put("name", rs1.getString("First_Name"));
+				emp_list.put("lastname", rs1.getString("Last_Name"));
+				emp_list.put("EMPID", empid);
+				emp_list.put("designation", "Teacher");
+				emp_list.put("Type","Salary certificate");
+				
+				mymap.add(j,emp_list);
+				j++;	
+			}
+		
+		}while(rs.next());
+		return mymap;	
 	}
-	
 	
 	
 	

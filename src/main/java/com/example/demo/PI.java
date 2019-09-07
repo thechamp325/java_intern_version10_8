@@ -684,27 +684,31 @@ System.out.println("Approval pending");
 		
 	
 		//LIVE REQUEST HOD
-		@GetMapping("/pi/emp/livehod")
-		public Map<String, String> livehod() throws Exception {
-			
-			Salary_certificate s = new Salary_certificate();
-			return s.live_reqhod();
-				
-		   
-		}
-		
-		
-		//LIVE REQUEST PRINCIPAL
-				@GetMapping("/pi/emp/liveprincipal")
-				public Map<String, String> liveprincipal() throws Exception {
+				@GetMapping("/pi/emp/livehod")            //tested
+				public List livehod() throws Exception {
 					
 					Salary_certificate s = new Salary_certificate();
-					return s.live_requestp();
-						
-				   
-				}
 
-		
+					return s.live_reqhod();	
+				}
+				
+				
+				//LIVE REQUEST PRINCIPAL		
+						@GetMapping("/pi/emp/liveprincipal")            //tested
+						public List liveprincipal() throws Exception {
+							
+							Salary_certificate s = new Salary_certificate();
+							return s.live_requestp();
+								
+						   
+						}
+
+				@GetMapping("/pi/emp/exp_certificate")
+				public Map<String,String> exp_request(@RequestBody Map<String, Object> payload) throws Exception {
+					Experience_cert e = new Experience_cert();
+					return e.Employee_exp(log);
+					
+				}
 	
 	
 	//
