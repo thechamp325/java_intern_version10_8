@@ -88,10 +88,8 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 
 public Map<String, String> check_req(@RequestBody Map<String, Object> payload) throws Exception{
 	System.out.println("Finally here");
-//	String emp_id = (String)payload.get("empid");
-	String empid = "Emp01";
-	String emp;
-	String empname;
+	String emp = (String)payload.get("Employee_ID");
+	
 	
 	Date fromdate;
 	Date todate;
@@ -100,14 +98,13 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 	Map<String, String> map = new HashMap<String, String>();
 
 		
-	String sql="SELECT * FROM public.salary where \"Employee_ID\" = '"+empid+"';";
+	String sql="SELECT * FROM public.salary where \"Employee_ID\" = '"+emp+"';";
 	Statement stmt = db.connect().createStatement();
 	ResultSet rs=stmt.executeQuery(sql);
 	int i=1;
 	while(i==1&&rs.next()){ 
 		i=2;
 		try {
-			 emp=rs.getString("Employee_ID");
 			 
 			 fromdate=rs.getDate("from_date");
 			
@@ -145,11 +142,13 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 				else if( field1==true && field2==true && field3==true && field4==false )
 				{
 					
-					String sql4="SELECT \"ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
-							"	FROM public.\"Personal\" where \"Employee_ID\"="+emp+";";
+					String sql4="SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
+							"	FROM public.\"Personal\" where \"Employee_ID\"='"+emp+"';";
 					Statement stmt1 = db.connect().createStatement();
 					ResultSet rs4=stmt1.executeQuery(sql4);
-					empname=rs4.getString(3)+rs4.getString(5);
+					rs4.next();
+					String empname=rs4.getString(3)+rs4.getString(5);
+					System.out.println("1st done");
 					
 					
 					
@@ -157,6 +156,9 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 					Statement stmt2 = db.connect().createStatement();
 					ResultSet rs2=stmt2.executeQuery(sql2);
+					rs2.next();
+					System.out.println("2st done");
+
 					
 					
 					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
@@ -166,11 +168,13 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 					
 					
-					int pay=rs2.getInt(15);
+					int pay=rs2.getInt(3);
+					System.out.println("3rd done");
+
 					String designation=rs2.getString(2);
 					String dep=(String)rs2.getString(3);
 					
-					int paygrade=rs2.getInt(16);
+					int paygrade=rs2.getInt(4);
 					int hra_m1=(int) ((pay+paygrade)*0.2);
 					int hra_m2=(int) ((pay+paygrade)*0.21);
 					int hra_m3=(int) ((pay+paygrade)*0.22);
@@ -244,60 +248,86 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					map.put("pay2",String.valueOf(pay));
 					map.put("pay3",String.valueOf(pay));
 					
-					map.put("hra_m1",String.valueOf(hra_m1));
-					map.put("hra_m2",String.valueOf(hra_m2));
-					map.put("hra_m3",String.valueOf(hra_m3));
+					map.put("hra1",String.valueOf(hra_m1));
+					map.put("hra2",String.valueOf(hra_m2));
+					map.put("hra3",String.valueOf(hra_m3));
 					
-					map.put("da_m1",String.valueOf(da_m1));
-					map.put("da_m2",String.valueOf(da_m2));
-					map.put("da_m3",String.valueOf(da_m3));
+					map.put("da1",String.valueOf(da_m1));
+					map.put("da2",String.valueOf(da_m2));
+					map.put("da3",String.valueOf(da_m3));
 					
-					map.put("dp_m1",String.valueOf(dp_m1));
-					map.put("dp_m2",String.valueOf(dp_m2));
-					map.put("dp_m3",String.valueOf(dp_m3));
+					map.put("dp1",String.valueOf(dp_m1));
+					map.put("dp2",String.valueOf(dp_m2));
+					map.put("dp3",String.valueOf(dp_m3));
 					
-					map.put("cca_m1",String.valueOf(cca_m1));
-					map.put("cca_m2",String.valueOf(cca_m2));
-					map.put("cca_m3",String.valueOf(cca_m3));
+					map.put("cca1",String.valueOf(cca_m1));
+					map.put("cca2",String.valueOf(cca_m2));
+					map.put("cca3",String.valueOf(cca_m3));
 
 					
-					map.put("ta_m1",String.valueOf(ta_m1));
-					map.put("ta_m2",String.valueOf(ta_m2));
-					map.put("ta_m3",String.valueOf(ta_m3));
+					map.put("ta1",String.valueOf(ta_m1));
+					map.put("ta2",String.valueOf(ta_m2));
+					map.put("ta3",String.valueOf(ta_m3));
 					
-					map.put("pf_m1",String.valueOf(pf_m1));
-					map.put("pf_m2",String.valueOf(pf_m2));
-					map.put("pf_m3",String.valueOf(pf_m3));
+					map.put("pf1",String.valueOf(pf_m1));
+					map.put("pf2",String.valueOf(pf_m2));
+					map.put("pf3",String.valueOf(pf_m3));
 					
-					map.put("pt_m1",String.valueOf(pt_m1));
-					map.put("pt_m2",String.valueOf(pt_m2));
-					map.put("pt_m3",String.valueOf(pt_m3));
+					map.put("pt1",String.valueOf(pt_m1));
+					map.put("pt2",String.valueOf(pt_m2));
+					map.put("pt3",String.valueOf(pt_m3));
 					
-					map.put("it_m1",String.valueOf(it_m1));
-					map.put("it_m2",String.valueOf(it_m2));
-					map.put("it_m3",String.valueOf(it_m3));
+					map.put("it1",String.valueOf(it_m1));
+					map.put("it2",String.valueOf(it_m2));
+					map.put("it3",String.valueOf(it_m3));
 					
-					map.put("revenue_m1",String.valueOf(revenue_m1));
-					map.put("revenue_m2",String.valueOf(revenue_m2));
-					map.put("revenue_m3",String.valueOf(revenue_m3));
+					map.put("r1",String.valueOf(revenue_m1));
+					map.put("r2",String.valueOf(revenue_m2));
+					map.put("r3",String.valueOf(revenue_m3));
 					
-					map.put("other_m1",String.valueOf(other_m1));
-					map.put("other_m2",String.valueOf(other_m2));
-					map.put("other_m3",String.valueOf(other_m3));
+					map.put("o1",String.valueOf(other_m1));
+					map.put("o2",String.valueOf(other_m2));
+					map.put("o3",String.valueOf(other_m3));
 					
-					map.put("total_m1",String.valueOf(total_m1));
-					map.put("total_m2",String.valueOf(total_m2));
-					map.put("total_m3",String.valueOf(total_m3));
+					map.put("t1",String.valueOf(total_m1));
+					map.put("t2",String.valueOf(total_m2));
+					map.put("t3",String.valueOf(total_m3));
 					
-					map.put("gross1",String.valueOf(gross1));
-					map.put("gross2",String.valueOf(gross2));
-					map.put("gross3",String.valueOf(gross3));
+					map.put("g1",String.valueOf(gross1));
+					map.put("g2",String.valueOf(gross2));
+					map.put("g3",String.valueOf(gross3));
 					
-					map.put("net1",String.valueOf(net1));
-					map.put("net2",String.valueOf(net2));
-					map.put("net3",String.valueOf(net3));
+					map.put("n1",String.valueOf(net1));
+					map.put("n2",String.valueOf(net2));
+					map.put("n3",String.valueOf(net3));
 					
-					map.put(empname, "name");
+					
+					 
+					map.put("m1",String.valueOf(fromdate));
+					
+					Calendar cal = Calendar.getInstance();
+					 cal.setTime(fromdate); 
+						cal.add(Calendar.DAY_OF_MONTH,30);  					 
+						System.out.println(cal.getTime());
+						SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+
+						String newDate = sdf1.format(cal.getTime()); 
+						
+						 cal.setTime(fromdate); 
+						cal.add(Calendar.DAY_OF_MONTH,61);  					 
+						System.out.println(cal.getTime());
+						String to_date = sdf1.format(cal.getTime()); 
+
+//					 System.out.println(fromdate.format(cal.getTime())); 
+					map.put("m2",String.valueOf(newDate));
+					map.put("m3",String.valueOf(to_date));
+					
+					map.put("x1",String.valueOf(fromdate));
+					map.put("x2",String.valueOf(newDate));
+					map.put("x3",String.valueOf(to_date));
+					
+					
+//					map.put(empname, "name");
 				
 					return map;	
 				}
