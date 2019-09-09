@@ -799,7 +799,13 @@ System.out.println("Approval pending");
 					return e.Employee_exp(log);
 					
 				}
-	
+				
+				
+				@GetMapping("/pi/emp/list")    //not tested
+				public Map <String , String> list_of_emp(@RequestBody Map<String, Object> payload) throws Exception {
+					List_of_emp l = new List_of_emp();
+					return l.Employee_list(payload);
+				}
 	
 	//
 	/*@GetMapping("/pi/emp/changedesignation")
