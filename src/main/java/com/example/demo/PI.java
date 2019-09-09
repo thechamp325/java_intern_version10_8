@@ -165,18 +165,25 @@ catch (SQLException e) {
 		String title = (String) payload.get("title");
 		String name = (String) payload.get("name");
 		String ISSN = (String) payload.get("ISSN");
-		int vol_no = Integer.parseInt((String) payload.get("vol_no"));	
-		int issue_no = Integer.parseInt((String) payload.get("issue_no"));		
-		int pages = Integer.parseInt((String) payload.get("pages"));		
+		int vol_no = (int)payload.get("vol_no");	
+		int issue_no = (int)payload.get("issue_no");		
+		int pages = (int) payload.get("pages");		
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
 		java.sql.Date date = new java.sql.Date(date1.getTime());
 		String primarykey = (String) String.valueOf(issue_no);
 		
+		Statement st = null;
+		ResultSet rs = null;
+		
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
-		Statement st = db.connect().createStatement();
-		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}
+		
 		
 		if(rs.getString("Employee_ID").equals(log)) {
 			String sql = "INSERT INTO public.nationaljournal(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
@@ -248,7 +255,10 @@ catch (SQLException e) {
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
 		
 		if(rs.getString("Employee_ID").equals(log)) {
 		
@@ -319,8 +329,10 @@ catch (SQLException e) {
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
-		
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
 		if(rs.getString("Employee_ID").equals(log)) {
 
 
@@ -391,8 +403,10 @@ catch (SQLException e) {
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
-		
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
 		if(rs.getString("Employee_ID").equals(log)) {
 
 			String sql = "INSERT INTO public.inter_natconf(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
@@ -462,8 +476,10 @@ catch (SQLException e) {
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
-		
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
 		if(rs.getString("Employee_ID").equals(log)) {
 			String sql = "INSERT INTO public.book(author,title,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?);";
 			
