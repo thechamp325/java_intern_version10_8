@@ -25,7 +25,7 @@ public class facultyreport {
 
 
 		ResultSet rs = null;
-		String sql="SELECT * FROM public.pginfo;";
+		String sql="SELECT * FROM public.students";
 	    System.out.println("Query execution");
 
 		

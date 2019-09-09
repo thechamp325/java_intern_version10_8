@@ -103,15 +103,43 @@ catch (SQLException e) {
 	
 	
 	@PostMapping("/pi/emp/enter/admin/login/details")   //for data filling by admin //tested
+	public Map<String,String> data1(@RequestBody Map<String, Object> payload) throws Exception{
+	Map<String,String>map = new HashMap<String,String>();
+
+	if(admin_log) {
+	String log = (String) payload.get("Employee_ID");
+	String sql = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"';";
+	Statement st = db.connect().createStatement();
+	ResultSet rs = st.executeQuery(sql);
+	
+		if(rs.next()) {
+			Officeinfo oi = new Officeinfo();
+			String s = oi.entry(payload, log);
+			map.put("status", "entry successfull");
+			return map;
+			}
+		else {
+			map.put("Status", "Entry not seccessfull");
+			return map;
+		}
+	}
+	
+	else {
+		map.put("status","Please sign in");
+		return map ;
+	}
+	
+}
+	
+	
+	
+	@PostMapping("/pi/emp/enter/admin/login/details/education")   //for data filling by admin //tested
 	public String data(@RequestBody Map<String, Object> payload) throws Exception{
 	if(admin_log) {
 	String log = (String) payload.get("Employee_ID");
 	Education E= new Education();
 	String s = E.entry(payload,log);
-	Officeinfo oi = new Officeinfo();
-	String s3 = oi.entry(payload, log);
-//	Others o = new Others();
-//	String s2 = o.entry(payload, log);
+	
 	
 	return s;
 	}
@@ -124,32 +152,33 @@ catch (SQLException e) {
 	
 	
 	
+	
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/national_journal")   //national international journal publications functions 
-	public String national_journal(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> national_journal(@RequestBody Map<String, Object> payload) throws Exception{
+	
+	Map<String,String>map = new HashMap<String,String>();
+		
 	if(admin_log) {
 
-		int num=(int)payload.get("number");
 		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		String name = (String) payload.get("name");
+		String ISSN = (String) payload.get("ISSN");
+		int vol_no = Integer.parseInt((String) payload.get("vol_no"));	
+		int issue_no = Integer.parseInt((String) payload.get("issue_no"));		
+		int pages = Integer.parseInt((String) payload.get("pages"));		
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = (String) String.valueOf(issue_no);
 		
-		while(num>0)
-		{
-			String author = (String) payload.get("author"+num+"");
-			String title = (String) payload.get("title"+num+"");
-			String name = (String) payload.get("name"+num+"");
-			String ISSN = (String) payload.get("ISSN"+num+"");
-
-			int vol_no = (int) payload.get("vol_no"+num+"");		
-			int issue_no = (int) payload.get("issue_no"+num+"");
-			int pages = (int) payload.get("pages"+num+"");
-			
-			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-			java.util.Date date1 = sdf1.parse((String)payload.get("date"+num+""));
-			java.sql.Date date = new java.sql.Date(date1.getTime());
-			
-			String primarykey = log +num+"";
-			num--;
-
-
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		rs.next();
+		
+		if(rs.getString("Employee_ID").equals(log)) {
 			String sql = "INSERT INTO public.nationaljournal(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
 			
 			try {
@@ -169,18 +198,28 @@ catch (SQLException e) {
 				System.out.println("LOGIN ID IS10"+log);				
 				stmt.executeUpdate();
 				System.out.println("done");
-			} catch (SQLException e) {
-				
+				map.put("status","Entry Successfull");
+			} 
+			catch (SQLException e) {
 				e.printStackTrace();
 				System.out.println(e.getMessage());
-
-			}
-			}
+				map.put("status","Not Successfull");
+				return map;
+				}
+			
+		return map;
+		}
 		
-		return "Done";
+		else {
+			map.put("Status","Employee_ID not found");
+			return map;
+		}
+		
 	}
+	
 	else {
-		return "Please sign in";
+		map.put("status", "Please Login");
+		return map;
 	}
 	
 }
@@ -188,32 +227,32 @@ catch (SQLException e) {
 	
 	
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/international_journal")   //national international journal publications functions 
-	public String international_journal(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> international_journal(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map = new HashMap<String,String>();
 	if(admin_log) {
 
-		int num=(int)payload.get("number");
 		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		String name = (String) payload.get("name");
+		String ISSN = (String) payload.get("ISSN");
+		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
+		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
+		int pages = Integer.parseInt((String)payload.get("pages"));
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = String.valueOf(issue_no);
 		
-		while(num>0)
-		{
-			String author = (String) payload.get("author"+num+"");
-			String title = (String) payload.get("title"+num+"");
-			String name = (String) payload.get("name"+num+"");
-			String ISSN = (String) payload.get("ISSN"+num+"");
-
-			int vol_no = (int) payload.get("vol_no"+num+"");		
-			int issue_no = (int) payload.get("issue_no"+num+"");
-			int pages = (int) payload.get("pages"+num+"");
-			
-			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-			java.util.Date date1 = sdf1.parse((String)payload.get("date"+num+""));
-			java.sql.Date date = new java.sql.Date(date1.getTime());
-			
-			String primarykey = log +num+"";
-			num--;
-
-
-			String sql = "INSERT INTO public.inter_natjournal(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		rs.next();
+		
+		if(rs.getString("Employee_ID").equals(log)) {
+		
+		String sql = "INSERT INTO public.inter_natjournal(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
 			
 			try {
 				PreparedStatement stmt = db.connect().prepareStatement(sql);
@@ -236,46 +275,56 @@ catch (SQLException e) {
 				
 				e.printStackTrace();
 				System.out.println(e.getMessage());
+				map.put("Status", "Not Successfull");
+				return map;
 
 			}
-			}
+			
+		map.put("Status", "Entry Successfull");
+		return map;
+		}
 		
-		return "Done";
+		else {
+			map.put("Status","Employee_ID not found");
+			return map;
+		}
 	}
 	else {
-		return "Please sign in";
+		map.put("status", "Please sign in");
+		return map;
 	}
 	
 }
 
 
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/national_conf")   //national international journal publications functions 
-	public String national_conf(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> national_conf(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map= new HashMap<String,String>();
 	if(admin_log) {
 
-		int num=(int)payload.get("number");
 		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		String name = (String) payload.get("name");
+		String ISSN = (String) payload.get("ISSN");
+		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
+		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
+		int pages = Integer.parseInt((String)payload.get("pages"));
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = String.valueOf(issue_no);
 		
-		while(num>0)
-		{
-			String author = (String) payload.get("author"+num+"");
-			String title = (String) payload.get("title"+num+"");
-			String name = (String) payload.get("name"+num+"");
-			String ISSN = (String) payload.get("ISSN"+num+"");
-
-			int vol_no = (int) payload.get("vol_no"+num+"");		
-			int issue_no = (int) payload.get("issue_no"+num+"");
-			int pages = (int) payload.get("pages"+num+"");
-			
-			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-			java.util.Date date1 = sdf1.parse((String)payload.get("date"+num+""));
-			java.sql.Date date = new java.sql.Date(date1.getTime());
-			
-			String primarykey = log +num+"";
-			num--;
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		rs.next();
+		
+		if(rs.getString("Employee_ID").equals(log)) {
 
 
-			String sql = "INSERT INTO public.nationalconf(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO public.nationalconf(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
 			
 			try {
 				PreparedStatement stmt = db.connect().prepareStatement(sql);
@@ -298,44 +347,53 @@ catch (SQLException e) {
 				
 				e.printStackTrace();
 				System.out.println(e.getMessage());
+				map.put("Status","Not Successfull");
+				return map;
+			}
+			
+			map.put("Status","Entry successfull");
+			return map;
 
-			}
-			}
-		
-		return "Done";
-	}
+		}
+		else {
+			map.put("Status","Employee_ID not found");
+			return map;
+		}
+			
+		}
 	else {
-		return "Please sign in";
+		map.put("Status", "Please Login");
+		return map;
 	}
 	
 }
 
 
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/international_conf")   //national international journal publications functions 
-	public String international_conf(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> international_conf(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map= new HashMap<String,String>();
 	if(admin_log) {
 
-		int num=(int)payload.get("number");
 		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		String name = (String) payload.get("name");
+		String ISSN = (String) payload.get("ISSN");
+		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
+		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
+		int pages = Integer.parseInt((String)payload.get("pages"));
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = String.valueOf(issue_no);
+
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		rs.next();
 		
-		while(num>0)
-		{
-			String author = (String) payload.get("author"+num+"");
-			String title = (String) payload.get("title"+num+"");
-			String name = (String) payload.get("name"+num+"");
-			String ISSN = (String) payload.get("ISSN"+num+"");
-
-			int vol_no = (int) payload.get("vol_no"+num+"");		
-			int issue_no = (int) payload.get("issue_no"+num+"");
-			int pages = (int) payload.get("pages"+num+"");
-			
-			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-			java.util.Date date1 = sdf1.parse((String)payload.get("date"+num+""));
-			java.sql.Date date = new java.sql.Date(date1.getTime());
-			
-			String primarykey = log +num+"";
-			num--;
-
+		if(rs.getString("Employee_ID").equals(log)) {
 
 			String sql = "INSERT INTO public.inter_natconf(author,title,name,\"ISSN\",vol_no,issue_no,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?,?,?,?,?);";
 			
@@ -360,41 +418,53 @@ catch (SQLException e) {
 				
 				e.printStackTrace();
 				System.out.println(e.getMessage());
+				map.put("Status","Not Successfull");
+				return map;
 
 			}
-			}
+			
+			map.put("Status","Entry Successfull");
+			return map;
+		}
+		else {
+			map.put("Status","EmployeeID not found");
+			return map;
+			
+		}
+			
 		
-		return "Done";
+	
 	}
 	else {
-		return "Please sign in";
+		map.put("Status","Please Login");
+
+		return map;
 	}
 	
 }
 	
 	
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/book")   //Books
-	public String books(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> books(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map = new HashMap<String,String>();
 	if(admin_log) {
 
-		int num=(int)payload.get("number");
 		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		int pages = (int) payload.get("pages");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = author+title;
 		
-		while(num>0)
-		{
-			String author = (String) payload.get("author"+num+"");
-			String title = (String) payload.get("title"+num+"");
-			
-  		int pages = (int) payload.get("pages"+num+"");
-			
-			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-			java.util.Date date1 = sdf1.parse((String)payload.get("date"+num+""));
-			java.sql.Date date = new java.sql.Date(date1.getTime());
-			
-			String primarykey = log +num+"";
-			num--;
-
-
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		rs.next();
+		
+		if(rs.getString("Employee_ID").equals(log)) {
 			String sql = "INSERT INTO public.book(author,title,pages,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?);";
 			
 			try {
@@ -414,29 +484,27 @@ catch (SQLException e) {
 				
 				e.printStackTrace();
 				System.out.println(e.getMessage());
+				map.put("status","Not Successfull");
+				return map;
 
 			}
-			}
+			
 		
-		return "Done";
+			map.put("status","Entry Successfull");
+			return map;
+
+		}
+		else {
+			map.put("status","Employee_ID not found");
+			return map;
+		}
 	}
 	else {
-		return "Please sign in";
+		map.put("status","Please sign in");
+		return map;
 	}
 	
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
