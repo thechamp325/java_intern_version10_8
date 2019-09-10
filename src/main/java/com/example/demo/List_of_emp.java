@@ -2,7 +2,9 @@ package com.example.demo;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,30 +14,69 @@ public class List_of_emp {
 	
 	DB db = new DB();
 	
-	public Map<String , String> Employee_list(@RequestBody Map<String, Object> payload) throws Exception {
-		Map <String , String> mp = new HashMap<String , String>();
+	public List Employee_list(@RequestBody Map<String, String> payload) throws Exception {
 		String dept = (String) payload.get("Department");
 		
-		String sql1 = "SELECT * FROM public.pastteaching WHERE department = '" + dept + "';";
+		String sql1 = "SELECT public.officeinfo.\"Employee_ID\",\"First_Name\",\"Middle_Name\",\"Last_Name\",designation FROM public.officeinfo inner join public.\"Personal\" on public.\"Personal\".\"Employee_ID\"=public.officeinfo.\"Employee_ID\" WHERE public.officeinfo.dep = '"+dept+"';;";
 		Statement st = db.connect().createStatement();
 		ResultSet rs = st.executeQuery(sql1);
-		rs.next();
-		int j = 1;
-		String i;
-		do {
-			String emp_id = rs.getString("employee_id");
-			String sql2 = "SELECT * FROM public.\"Personal \" WHERE \"Employee_ID\" = '" + emp_id + "';";
-			Statement st2 = db.connect().createStatement();
-			ResultSet rs2 = st.executeQuery(sql2);
-			rs2.next();
-			
-			i = String.valueOf(j);
-			mp.put("Employee ID"+i , emp_id);
-			mp.put("Name"+i , rs2.getString("First_Name") + rs2.getString("Middle_Name") + rs2.getString("Last_Name"));
-			mp.put("Designation"+i , rs.getString("design_teach"));
-			
-		}while(rs.next());
 		
-		return mp;
-	}
+		List<Map<String,String>> list = new  ArrayList<Map<String,String>>();
+
+		
+		while(rs.next()) {
+			Map<String,String> map= new HashMap<String,String>();
+			map.put("Employee", rs.getString("Employee_ID"));
+
+			map.put("Name",rs.getString("First_Name")+" "+rs.getString("Middle_Name")+" "+rs.getString("Last_Name"));
+			map.put("Designation",rs.getString("designation"));
+			map.put("Department", dept);
+			
+			list.add(map);
+			
+			map= null;
+
+		}
+		return list;
+			
+
+	
+
+	
+	
+	
+	
+}
+	public List Employee_listall(@RequestBody Map<String, String> payload) throws Exception {
+		
+		String sql1 = "SELECT public.officeinfo.\"Employee_ID\",\"First_Name\",\"Middle_Name\",\"Last_Name\",designation,dep FROM public.officeinfo inner join public.\"Personal\" on public.\"Personal\".\"Employee_ID\"=public.officeinfo.\"Employee_ID\";";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		
+		List<Map<String,String>> list = new  ArrayList<Map<String,String>>();
+
+		
+		while(rs.next()) {
+			Map<String,String> map= new HashMap<String,String>();
+			map.put("Employee", rs.getString("Employee_ID"));
+
+			map.put("Name",rs.getString("First_Name")+" "+rs.getString("Middle_Name")+" "+rs.getString("Last_Name"));
+			map.put("Designation",rs.getString("designation"));
+			map.put("Department", rs.getString("dep"));
+			
+			list.add(map);
+			
+			map= null;
+
+		}
+		return list;
+			
+
+	
+
+	
+	
+	
+	
+}
 }

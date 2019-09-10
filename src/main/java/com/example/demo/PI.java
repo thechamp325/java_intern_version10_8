@@ -727,7 +727,7 @@ System.out.println("Approval pending");
 	
 	
 	@PostMapping("/pi/emp/faculty")
-	public Map<String,Integer> facultyinfo(@RequestBody Map<String, Object> payload) throws SQLException {
+	public List facultyinfo(@RequestBody Map<String, Object> payload) throws SQLException {
 		Map<String, Integer> faculty = new HashMap<String, Integer>();
 		facultyreport f = new facultyreport();
 		return f.facultyinfo(payload,adb);
@@ -801,11 +801,28 @@ System.out.println("Approval pending");
 				}
 				
 				
-				@GetMapping("/pi/emp/list")    //not tested
-				public Map <String , String> list_of_emp(@RequestBody Map<String, Object> payload) throws Exception {
-					List_of_emp l = new List_of_emp();
-					return l.Employee_list(payload);
+				@GetMapping("/pi/emp/list")    //not tested 
+				public List list_of_emp(@RequestParam("Department") String Department) throws Exception {
+					Map<String,String>payload = new HashMap<String,String>();
+					payload.put("Department", Department);
+					if(!Department.equals("All")) {
+						List_of_emp l = new List_of_emp();
+						return l.Employee_list(payload);
+					}
+					else {
+						List_of_emp l = new List_of_emp();
+						return l.Employee_listall(payload);
+					}
+					
 				}
+				
+				
+				
+				
+				
+				
+				
+				
 	
 	//
 	/*@GetMapping("/pi/emp/changedesignation")
