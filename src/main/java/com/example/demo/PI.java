@@ -175,10 +175,16 @@ catch (SQLException e) {
 		
 		Statement st = null;
 		ResultSet rs = null;
-		
+		try {
 		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
 		 st = db.connect().createStatement();
 		 rs = st.executeQuery(sql1);
+		}
+		catch(Exception e){
+			map.put("Status", "Error");
+			return map;
+			
+		}
 		if(!rs.next()) {
 			map.put("Status", "Error");
 			return map;
@@ -244,9 +250,9 @@ catch (SQLException e) {
 		String title = (String) payload.get("title");
 		String name = (String) payload.get("name");
 		String ISSN = (String) payload.get("ISSN");
-		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
-		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
-		int pages = Integer.parseInt((String)payload.get("pages"));
+		int vol_no = (int)payload.get("vol_no");
+		int issue_no = (int)payload.get("issue_no");
+		int pages = (int)payload.get("pages");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
 		java.sql.Date date = new java.sql.Date(date1.getTime());
@@ -318,9 +324,9 @@ catch (SQLException e) {
 		String title = (String) payload.get("title");
 		String name = (String) payload.get("name");
 		String ISSN = (String) payload.get("ISSN");
-		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
-		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
-		int pages = Integer.parseInt((String)payload.get("pages"));
+		int vol_no = (int)payload.get("vol_no");
+		int issue_no = (int)payload.get("issue_no");
+		int pages = (int)payload.get("pages");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
 		java.sql.Date date = new java.sql.Date(date1.getTime());
@@ -392,9 +398,9 @@ catch (SQLException e) {
 		String title = (String) payload.get("title");
 		String name = (String) payload.get("name");
 		String ISSN = (String) payload.get("ISSN");
-		int vol_no = Integer.parseInt((String)payload.get("vol_no"));
-		int issue_no = Integer.parseInt((String)payload.get("issue_no"));
-		int pages = Integer.parseInt((String)payload.get("pages"));
+		int vol_no = (int)payload.get("vol_no");
+		int issue_no = (int)payload.get("issue_no");
+		int pages = (int)payload.get("pages");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
 		java.sql.Date date = new java.sql.Date(date1.getTime());
@@ -721,7 +727,7 @@ System.out.println("Approval pending");
 	
 	
 	@PostMapping("/pi/emp/faculty")
-	public Map<String,Integer> facultyinfo(@RequestBody Map<String, Object> payload) throws SQLException {
+	public List facultyinfo(@RequestBody Map<String, Object> payload) throws SQLException {
 		Map<String, Integer> faculty = new HashMap<String, Integer>();
 		facultyreport f = new facultyreport();
 		return f.facultyinfo(payload,adb);
@@ -793,7 +799,30 @@ System.out.println("Approval pending");
 					return e.Employee_exp(log);
 					
 				}
-	
+				
+				
+				@GetMapping("/pi/emp/list")    //not tested 
+				public List list_of_emp(@RequestParam("Department") String Department) throws Exception {
+					Map<String,String>payload = new HashMap<String,String>();
+					payload.put("Department", Department);
+					if(!Department.equals("All")) {
+						List_of_emp l = new List_of_emp();
+						return l.Employee_list(payload);
+					}
+					else {
+						List_of_emp l = new List_of_emp();
+						return l.Employee_listall(payload);
+					}
+					
+				}
+				
+				
+				
+				
+				
+				
+				
+				
 	
 	//
 	/*@GetMapping("/pi/emp/changedesignation")
