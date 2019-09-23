@@ -49,6 +49,32 @@ public class PI {
 		map.put("value", "hello");
 		return map;
 	}
+	@PostMapping("/pi/emp/autoempid")
+	public String autoempid() {
+		String sql = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = (Select max(\"Employee_ID\") from public.\"Personal\")";
+		Statement st = null;
+		ResultSet rs = null;
+		String newemp = null;
+		try {
+			System.out.println("Here");
+			st = db.connect().createStatement();
+			rs = st.executeQuery(sql);
+			rs.next();
+			String prev=(String)rs.getString("Employee_ID");;
+			String[] parts = prev.split("p");
+			int part2 = Integer.parseInt(parts[1]); 
+			part2++;
+			newemp=parts[0].concat("p".concat(String.valueOf(part2)));
+			
+			
+			
+		} catch (SQLException e) {
+			newemp = "Emp000";
+			e.printStackTrace();
+		}
+		return newemp;
+		
+	}
 	
 	
 	@PostMapping("/pi/emp/enter")//tested
@@ -737,228 +763,376 @@ System.out.println("Approval pending");
 	
 	
 	
-	@PostMapping("/pi/emp/salary_certificate")
-	public Map<String,String> salary_request(@RequestBody Map<String, Object> payload) throws Exception {
-		Map<String, String> salary = new HashMap<String, String>();
-		System.out.println("hello");
-		Salary_certificate s = new Salary_certificate();
-		s.req(payload);
-		
-	    salary.put("Status","Request Pending");
-		return salary;
-		
-	}
+@PostMapping("/pi/emp/salary_certificate")
+public Map<String,String> salary_request(@RequestBody Map<String, Object> payload) throws Exception {
+	Map<String, String> salary = new HashMap<String, String>();
+	System.out.println("hello");
+	Salary_certificate s = new Salary_certificate();
+	s.req(payload);
 	
-	//request
-		@GetMapping("/pi/emp/salary_check")
-		public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
-			System.out.println("Here");
-			Map<String, Object> payload = new HashMap<String, Object>();
-			payload.put("Employee_ID",Employee_ID);
+    salary.put("Status","Request Pending");
+	return salary;
+	
+}
 
-			List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
-			Map<String, String> salary = new HashMap<String, String>();
-			
-			Salary_certificate s = new Salary_certificate();
-			System.out.println("Here");
-			salary.putAll(s.check_req(payload));
-			mymap.add(0,salary);
-			
-			Map<String, String> test = new HashMap<String, String>();
-			System.out.println(test.get("PRINCIPAL"));
-			test.put("PRINCIPAL","true");
+//request
+@GetMapping("/pi/emp/salary_check")
+public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
+	System.out.println("Here");
+	Map<String, Object> payload = new HashMap<String, Object>();
+	payload.put("Employee_ID",Employee_ID);
 
-			return mymap;
-		 
+	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+	Map<String, String> salary = new HashMap<String, String>();
+	
+	Salary_certificate s = new Salary_certificate();
+	System.out.println("Here");
+	salary.putAll(s.check_req(payload));
+	mymap.add(0,salary);
+	
+	Map<String, String> test = new HashMap<String, String>();
+	System.out.println(test.get("PRINCIPAL"));
+	test.put("PRINCIPAL","true");
+
+	return mymap;
+ 
+}
+
+
+//LIVE REQUEST HOD
+@GetMapping("/pi/emp/livehod")            //tested
+public List livehod() throws Exception {
+	
+	Salary_certificate s = new Salary_certificate();
+
+	return s.live_reqhod();	
+}
+
+
+
+//LIVE REQUEST PRINCIPAL		
+@GetMapping("/pi/emp/liveprincipal")            //tested
+public List liveprincipal() throws Exception {
+	
+	Salary_certificate s = new Salary_certificate();
+	return s.live_requestp();
+		
+   
+}
+
+
+@PostMapping("/pi/emp/salary/approvehod_salary") //HOD APPROVAL
+public String approvehod(@RequestBody Map<String, Object> payload) throws Exception{
+	
+	String empid=(String)payload.get("Employee_ID");
+	System.out.println(empid);
+	boolean approval=(boolean)payload.get("hod_approval");
+	
+	String sql="SELECT hod,fin,request FROM public.salary WHERE \"Employee_ID\"='"+ empid +"';";
+	try
+	{
+		Statement stmt = db.connect().createStatement();
+		ResultSet rs=stmt.executeQuery(sql);//problem here
+		while(rs.next())
+		{
+			boolean request=rs.getBoolean("request");
+   			boolean fin=rs.getBoolean("fin");
+			if( fin==false && request==false)
+			{	//latest request of salary certificate
+				String sql1="UPDATE public.salary SET hod=? WHERE \"Employee_ID\"='"+empid+"';";
+				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+				stmt1.setBoolean(1,approval);
+				stmt1.executeUpdate();	
+				return "HOD decision done";
+			}
+			
 		}
-		
-	
-		//LIVE REQUEST HOD
-				@GetMapping("/pi/emp/livehod")            //tested
-				public List livehod() throws Exception {
-					
-					Salary_certificate s = new Salary_certificate();
-
-					return s.live_reqhod();	
-				}
 				
-				
-				//LIVE REQUEST PRINCIPAL		
-						@GetMapping("/pi/emp/liveprincipal")            //tested
-						public List liveprincipal() throws Exception {
-							
-							Salary_certificate s = new Salary_certificate();
-							return s.live_requestp();
-								
-						   
-						}
-
-				@GetMapping("/pi/emp/exp_certificate")
-				public Map<String,String> exp_request(@RequestBody Map<String, Object> payload) throws Exception {
-					Experience_cert e = new Experience_cert();
-					return e.Employee_exp(log);
-					
-				}
-				
-				
-				@GetMapping("/pi/emp/list")    //not tested 
-				public List list_of_emp(@RequestParam("Department") String Department) throws Exception {
-					Map<String,String>payload = new HashMap<String,String>();
-					payload.put("Department", Department);
-					if(!Department.equals("All")) {
-						List_of_emp l = new List_of_emp();
-						return l.Employee_list(payload);
-					}
-					else {
-						List_of_emp l = new List_of_emp();
-						return l.Employee_listall(payload);
-					}
-					
-				}
-				
-				
-				
-				
-				
-				
-				
-				
-	
-	//
-	/*@GetMapping("/pi/emp/changedesignation")
-	public Map<String,String> changed(@RequestBody Map<String, Object> payload) throws Exception {
-		
-		Map<String, String> salary = new HashMap<String, String>();
-		String newdesign=(String)payload.get("newdesign");//STAFF ENTERS NEW EMPLOYEE
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		java.util.Date tempdate1 = sdf1.parse((String)payload.get("datestart"));
-		java.util.Date tempdate2= sdf1.parse((String)payload.get("oldend")); //END DATE FOR PREVIOUS DESIGNATION
-	    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
-	    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
-	    Salary_certificate s = new Salary_certificate();
-		s.req(payload);
-	    salary.put("Status","Request Pending");
-		return salary;
-		
 	}
-	*/
+	catch (SQLException e) {
+		
+		e.printStackTrace();
+		System.out.println(e.getMessage());
+	}	
+	return "Unsuccessful attempt";
+}
+
+
+
+@PostMapping("/pi/emp/salary/approveprinci") //PRINCIPAL APPROVAL
+public String approvep(@RequestBody Map<String, Object> payload) throws Exception{
 	
+	String empid=(String)payload.get("Employee_ID");
+	boolean approval=(boolean)payload.get("principal_approval");
+	
+	String sql="SELECT principal, \"Employee_ID\", hod,fin\r\n" + 
+			"	FROM public.salary where \"Employee_ID\"='"+ empid +"';";
+	
+	try
+	{
+		Statement stmt = db.connect().createStatement();
+		ResultSet rs=stmt.executeQuery(sql);
+		while(rs.next())
+		{
+			System.out.println("hello");//works till here.
+			boolean hod=rs.getBoolean("hod");
+			
+			boolean fin=rs.getBoolean("fin");//IF FINAL IS SET FALSE THEN REJECTED OLD REQUEST/NOT APPROVED YET.
+			//IF PRINCIPAL REJECTS,HOD VALUE IS ALSO BY DEFAULT FALSE.
+			
+			if(fin==false && hod==true && approval==true)
+			{	//latest request of salary certificate
+				String sql1="UPDATE public.salary SET principal='"+approval+"',fin='"+approval+"',request='"+approval+"' where \"Employee_ID\"='"+ empid +"';";
+				PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+			
+				stmt1.executeUpdate();	
+				System.out.println("done");
+				return "Principal decision done";
+			}
+			else if(fin==false && hod==false)
+			{
+				
+				String sql1="UPDATE public.salary SET principal='"+hod+"',fin='"+fin+"',request='"+fin+"' where \"Employee_ID\"='"+ empid +"';";
+				PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+				
+				stmt1.executeUpdate();	
+				return "Rejected";
+			}
+		}
+	}
+	catch (SQLException e) {
+		
+		e.printStackTrace();
+		System.out.println(e.getMessage());
+	}		
+	return "Unsuccessful attempt";
+}
+	
+	
+	
+//No objection certificate request
+@PostMapping("/pi/emp/noc")
+public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) throws Exception {
+	Map<String, String> noc = new HashMap<String, String>();
+	System.out.println("hello");
+	noc s = new noc();
+	s.req(payload);
+	
+    noc.put("Status","Request Pending");
+	return noc;	
+}
+		
+
+	@GetMapping("/pi/emp/noc_check")
+	public List noc_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
+		System.out.println("Here");
+		Map<String, Object> payload = new HashMap<String, Object>();
+		payload.put("Employee_ID",Employee_ID);
+
+		List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+		Map<String, String> noc = new HashMap<String, String>();
+		
+		noc n = new noc();
+		System.out.println("Here");
+		noc.putAll(n.check_req(payload));
+		mymap.add(0,noc);
+		
+		Map<String, String> test = new HashMap<String, String>();
+		System.out.println(test.get("PRINCIPAL"));
+		test.put("PRINCIPAL","true");
+
+		return mymap;
+	 
+	}
+
+
+	//LIVE REQUEST PRINCIPAL		
+	@GetMapping("/pi/emp/nocliveprincipal")            //tested
+	public List nocliveprincipal() throws Exception {
+		
+		noc n = new noc();
+		return n.live_requestp();
+			
+	   
+	}
+
+
+	//LIVE REQUEST HOD
+			@GetMapping("/pi/emp/noclivehod")            //tested
+			public List noclivehod() throws Exception {
+				
+				noc n = new noc();
+
+				return n.live_reqhod();	
+			}
+			
+			
+			
+			
+			@PostMapping("/pi/emp/noc/approvehod") //HOD APPROVAL
+			public String approvehod_noc(@RequestBody Map<String, Object> payload) throws Exception{
+				
+				String empid=(String)payload.get("Employee_ID");
+				String noc_id=(String)payload.get("noc_id");
+				System.out.println(empid);
+				boolean approval=(boolean)payload.get("hod_approval");
+				
+				String sql="SELECT hod,fin,request FROM public.noc WHERE noc_id='"+ noc_id +"';";
+				try
+				{
+					Statement stmt = db.connect().createStatement();
+					ResultSet rs=stmt.executeQuery(sql);//problem here
+					while(rs.next())
+					{
+						boolean request=rs.getBoolean("request");
+			   			boolean fin=rs.getBoolean("fin");
+						if( fin==false && request==false)
+						{	//latest request of salary certificate
+							String sql1="UPDATE public.noc SET hod=? WHERE noc_id='"+empid+"';";
+							PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+							stmt1.setBoolean(1,approval);
+							stmt1.executeUpdate();	
+							return "HOD decision done";
+						}
+						
+					}
+							
+				}
+				catch (SQLException e) {
+					
+					e.printStackTrace();
+					System.out.println(e.getMessage());
+				}	
+				return "Unsuccessful attempt";
+			}
+
+
+
+			@PostMapping("/pi/emp/noc/approveprinci") //PRINCIPAL APPROVAL
+			public String approvep_noc(@RequestBody Map<String, Object> payload) throws Exception{
+				
+				String empid=(String)payload.get("Employee_ID");
+				String noc_id=(String)payload.get("noc_id");
+				boolean approval=(boolean)payload.get("principal_approval");
+				
+				String sql="SELECT principal, \"Employee_ID\", hod,fin\r\n" + 
+						"	FROM public.noc where noc_id='"+ noc_id +"';";
+				
+				try
+				{
+					Statement stmt = db.connect().createStatement();
+					ResultSet rs=stmt.executeQuery(sql);
+					while(rs.next())
+					{
+						System.out.println("hello");//works till here.
+						boolean hod=rs.getBoolean("hod");
+						
+						boolean fin=rs.getBoolean("fin");//IF FINAL IS SET FALSE THEN REJECTED OLD REQUEST/NOT APPROVED YET.
+						//IF PRINCIPAL REJECTS,HOD VALUE IS ALSO BY DEFAULT FALSE.
+						
+						if(fin==false && hod==true && approval==true)
+						{	//latest request of salary certificate
+							String sql1="UPDATE public.noc SET principal='"+approval+"',fin='"+approval+"',request='"+approval+"' where noc_id='"+ noc_id +"';";
+							PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+						
+							stmt1.executeUpdate();	
+							System.out.println("done");
+							return "Principal decision done";
+						}
+						else if(fin==false && hod==false)
+						{
+							
+							String sql1="UPDATE public.noc SET principal='"+hod+"',fin='"+fin+"',request='"+fin+"' where noc_id='"+ noc_id +"';";
+							PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+							
+							stmt1.executeUpdate();	
+							return "Rejected";
+						}
+					}
+				}
+				catch (SQLException e) {
+					
+					e.printStackTrace();
+					System.out.println(e.getMessage());
+				}		
+				return "Unsuccessful attempt";
+			}
+		
+
+@GetMapping("/pi/emp/exp_certificate")
+public Map<String,String> exp_request(@RequestBody Map<String, Object> payload) throws Exception {
+	Experience_cert e = new Experience_cert();
+	return e.Employee_exp(log);
+	
+}
+
+
+@GetMapping("/pi/emp/list")    //not tested 
+public List list_of_emp(@RequestParam("Department") String Department) throws Exception {
+	Map<String,String>payload = new HashMap<String,String>();
+	payload.put("Department", Department);
+	if(!Department.equals("All")) {
+		List_of_emp l = new List_of_emp();
+		return l.Employee_list(payload);
+	}
+	else {
+		List_of_emp l = new List_of_emp();
+		return l.Employee_listall(payload);
+	}
+	
+}
+
+
+//
+/*@GetMapping("/pi/emp/changedesignation")
+public Map<String,String> changed(@RequestBody Map<String, Object> payload) throws Exception {
+	
+	Map<String, String> salary = new HashMap<String, String>();
+	String newdesign=(String)payload.get("newdesign");//STAFF ENTERS NEW EMPLOYEE
+	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.util.Date tempdate1 = sdf1.parse((String)payload.get("datestart"));
+	java.util.Date tempdate2= sdf1.parse((String)payload.get("oldend")); //END DATE FOR PREVIOUS DESIGNATION
+    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
+    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
+    Salary_certificate s = new Salary_certificate();
+	s.req(payload);
+    salary.put("Status","Request Pending");
+	return salary;
+	
+}
+*/
+
 //IF 'request'=false,not handled
 //IF 'request'=true,handled.
-	@PostMapping("/pi/emp/approvehod") //HOD APPROVAL
-	public String approvehod(@RequestBody Map<String, Object> payload) throws Exception{
-		
-		String empid=(String)payload.get("Employee_ID");
-		System.out.println(empid);
-		boolean approval=(boolean)payload.get("hod_approval");
-		
-		String sql="SELECT hod,fin,request FROM public.salary WHERE \"Employee_ID\"='"+ empid +"';";
-		try
-		{
-			Statement stmt = db.connect().createStatement();
-			ResultSet rs=stmt.executeQuery(sql);//problem here
-			while(rs.next())
-			{
-				boolean request=rs.getBoolean("request");
-       			boolean fin=rs.getBoolean("fin");
-				if( fin==false && request==false)
-				{	//latest request of salary certificate
-					String sql1="UPDATE public.salary SET hod=? WHERE \"Employee_ID\"='"+empid+"';";
-					PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
-					stmt1.setBoolean(1,approval);
-					stmt1.executeUpdate();	
-					return "HOD decision done";
-				}
-				
-			}
-					
-		}
-		catch (SQLException e) {
-			
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}	
-		return "Unsuccessful attempt";
-	}
-	
-	
-	
-	@PostMapping("/pi/emp/approveprinci") //PRINCIPAL APPROVAL
-	public String approvep(@RequestBody Map<String, Object> payload) throws Exception{
-		
-		String empid=(String)payload.get("Employee_ID");
-		boolean approval=(boolean)payload.get("principal_approval");
-		
-		String sql="SELECT principal, \"Employee_ID\", hod,fin\r\n" + 
-				"	FROM public.salary where \"Employee_ID\"='"+ empid +"';";
-		
-		try
-		{
-			Statement stmt = db.connect().createStatement();
-			ResultSet rs=stmt.executeQuery(sql);
-			while(rs.next())
-			{
-				System.out.println("hello");//works till here.
-				boolean hod=rs.getBoolean("hod");
-				
-				boolean fin=rs.getBoolean("fin");//IF FINAL IS SET FALSE THEN REJECTED OLD REQUEST/NOT APPROVED YET.
-				//IF PRINCIPAL REJECTS,HOD VALUE IS ALSO BY DEFAULT FALSE.
-				
-				if(fin==false && hod==true && approval==true)
-				{	//latest request of salary certificate
-					String sql1="UPDATE public.salary SET principal='"+approval+"',fin='"+approval+"',request='"+approval+"' where \"Employee_ID\"='"+ empid +"';";
-					PreparedStatement stmt1=db.connect().prepareStatement(sql1);
-				
-					stmt1.executeUpdate();	
-					System.out.println("done");
-					return "Principal decision done";
-				}
-				else if(fin==false && hod==false)
-				{
-					
-					String sql1="UPDATE public.salary SET principal='"+hod+"',fin='"+fin+"',request='"+fin+"' where \"Employee_ID\"='"+ empid +"';";
-					PreparedStatement stmt1=db.connect().prepareStatement(sql1);
-					
-					stmt1.executeUpdate();	
-					return "Rejected";
-				}
-			}
-		}
-		catch (SQLException e) {
-			
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}		
-		return "Unsuccessful attempt";
-	}
-	
-	//
-	@GetMapping("/pi/emp/changedesignation")
-	public Map<String,String> changed(@RequestBody Map<String, Object> payload) throws Exception {
-		
-		Map<String, String> salary = new HashMap<String, String>();
-		String newdesign=(String)payload.get("newdesign");//STAFF ENTERS NEW EMPLOYEE
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		java.util.Date tempdate1 = sdf1.parse((String)payload.get("datestart"));
-		java.util.Date tempdate2= sdf1.parse((String)payload.get("oldend")); //END DATE FOR PREVIOUS DESIGNATION
-	    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
-	    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
-	    
-//	    String sql="insert  public.pastteaching   "
-	    
-	    salary.put("Status","Request Pending");
-		return salary;
-		
-	}
-	
-	
-	
 
-	@PostMapping("/pi/emp/logout")
-	public String logouteveryone() {
-		 admin_log=false;
-		 emp_log = false;
-		 return "done";
+
+//
+@GetMapping("/pi/emp/changedesignation")
+public Map<String,String> changed(@RequestBody Map<String, Object> payload) throws Exception {
+	
+	Map<String, String> salary = new HashMap<String, String>();
+	String newdesign=(String)payload.get("newdesign");//STAFF ENTERS NEW EMPLOYEE
+	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	java.util.Date tempdate1 = sdf1.parse((String)payload.get("datestart"));
+	java.util.Date tempdate2= sdf1.parse((String)payload.get("oldend")); //END DATE FOR PREVIOUS DESIGNATION
+    Date datestart = new java.sql.Date(tempdate1.getTime()); //DATE OF NEW POST
+    Date endold = new java.sql.Date(tempdate2.getTime()); //END DATE OF OLD POST
+    
+//	    String sql="insert  public.pastteaching   "
+    
+    salary.put("Status","Request Pending");
+	return salary;
+	
+}
+
+
+
+
+@PostMapping("/pi/emp/logout")
+public String logouteveryone() {
+	 admin_log=false;
+	 emp_log = false;
+	 return "done";
 	}
 }
 

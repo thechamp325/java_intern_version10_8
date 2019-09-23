@@ -361,26 +361,47 @@ public List live_reqhod() throws SQLException {//tested
 	
 	Statement st = db.connect().createStatement();
 	ResultSet rs = st.executeQuery(sql1);
-	rs.next();
 	
-	String empid=rs.getString("Employee_ID");
-	System.out.println(empid);
+	String empid = null;
+	String sql2=null;
+	Statement st2 = null;
+	ResultSet rs1 = null;
+	String random=null;
+	
+	
+	String sql3=null;
+	Statement st3 = null;
+	ResultSet rs3 = null;
+	
+	
 
-	String sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
-			"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
-	Statement st2 = db.connect().createStatement();
-	ResultSet rs1 = st2.executeQuery(sql2);
-	rs1.next();
-
-	String random=rs1.getString("First_Name");
-	System.out.println(random);
-
-System.out.println(rs.getBoolean("fin"));
 
 List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 	
 	int j=0;
-	do{
+	while(rs.next()){
+		
+		
+		 empid=rs.getString("Employee_ID");
+		 System.out.println(empid);
+
+		 sql2="SELECT \"First_Name\", \"Last_Name\"\r\n" + 
+				"	FROM public.\"Personal\" where \"Employee_ID\"='"+empid+"';";
+		 st2 = db.connect().createStatement();
+		 rs1 = st2.executeQuery(sql2);
+		 rs1.next();
+		
+		
+		
+		sql3="SELECT designation FROM public.officeinfo where \"Employee_ID\"='"+empid+"';";
+		st3 = db.connect().createStatement();
+	    rs3 = st3.executeQuery(sql3);
+		rs3.next();
+		
+		
+
+		random=rs1.getString("First_Name");
+		System.out.println(random);
 		Map<String, String> emp_list = new HashMap<String, String>();
 		
 		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==false ) {
@@ -389,14 +410,14 @@ List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 			emp_list.put("name", rs1.getString("First_Name"));
 			emp_list.put("lastname", rs1.getString("Last_Name"));
 			emp_list.put("EMPID", empid);
-			emp_list.put("designation", "Teacher");
-			emp_list.put("Type","Salary certificate");
+			emp_list.put("designation", rs3.getString("designation"));
+			System.out.println(rs3.getString("designation"));
 			
 			mymap.add(j,emp_list);
 			j++;	
 	}
 	
-	}while(rs.next());
+	}
 	return mymap;	
 	}  
 
