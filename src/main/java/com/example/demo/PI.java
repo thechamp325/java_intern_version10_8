@@ -875,52 +875,51 @@ public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) t
 
 
 @PostMapping("/pi/emp/salary/approveprinci") //PRINCIPAL APPROVAL
-public String approvep(@RequestBody Map<String, Object> payload) throws Exception{
+public Map<String, String> approvep(@RequestBody Map<String, Object> payload) throws Exception{
 	
-	String empid=(String)payload.get("Employee_ID");
-	boolean approval=(boolean)payload.get("principal_approval");
+	String salary_id=(String)payload.get("Certificate_id");
+	String empid = (String)payload.get("EMPID");
+	Boolean princi_approval=Boolean.parseBoolean((String) payload.get("flag"));
+	System.out.println(salary_id);
+	Map<String,String> map= new HashMap<String,String>();
+
 	
-	String sql="SELECT principal, \"Employee_ID\", hod,fin\r\n" + 
-			"	FROM public.salary where \"Employee_ID\"='"+ empid +"';";
+//	boolean approval=(boolean)payload.get("hod_approval");
 	
+	String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
 	try
 	{
 		Statement stmt = db.connect().createStatement();
-		ResultSet rs=stmt.executeQuery(sql);
+		ResultSet rs=stmt.executeQuery(sql);//problem here
 		while(rs.next())
 		{
-			System.out.println("hello");//works till here.
-			boolean hod=rs.getBoolean("hod");
-			
-			boolean fin=rs.getBoolean("fin");//IF FINAL IS SET FALSE THEN REJECTED OLD REQUEST/NOT APPROVED YET.
-			//IF PRINCIPAL REJECTS,HOD VALUE IS ALSO BY DEFAULT FALSE.
-			
-			if(fin==false && hod==true && approval==true)
+			boolean request=rs.getBoolean("request");
+   			boolean fin=rs.getBoolean("fin");
+   			boolean hod = rs.getBoolean("hod");
+			if( fin==false && request==false&& hod == true)
 			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET principal='"+approval+"',fin='"+approval+"',request='"+approval+"' where \"Employee_ID\"='"+ empid +"';";
-				PreparedStatement stmt1=db.connect().prepareStatement(sql1);
+				String sql1="UPDATE public.salary SET principal=?,request=? WHERE salary_id='"+salary_id+"';";
+				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+				stmt1.setBoolean(1,princi_approval);
+				
+				stmt1.setBoolean(2,true);
+				
+				stmt1.executeUpdate();	
+				map.put("Status", "Approved by principal");
+				return map;
+			}
 			
-				stmt1.executeUpdate();	
-				System.out.println("done");
-				return "Principal decision done";
-			}
-			else if(fin==false && hod==false)
-			{
-				
-				String sql1="UPDATE public.salary SET principal='"+hod+"',fin='"+fin+"',request='"+fin+"' where \"Employee_ID\"='"+ empid +"';";
-				PreparedStatement stmt1=db.connect().prepareStatement(sql1);
-				
-				stmt1.executeUpdate();	
-				return "Rejected";
-			}
 		}
+				
 	}
 	catch (SQLException e) {
 		
 		e.printStackTrace();
 		System.out.println(e.getMessage());
-	}		
-	return "Unsuccessful attempt";
+		map.put("Status","Unsuccessful");
+	}	
+	return map;
+
 }
 	
 	
