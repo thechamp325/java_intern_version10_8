@@ -407,10 +407,16 @@ List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("hod")==false ) {
 			
 			
-			emp_list.put("name", rs1.getString("First_Name"));
-			emp_list.put("lastname", rs1.getString("Last_Name"));
+			emp_list.put("name", rs1.getString("First_Name")+" "+rs1.getString("Last_Name"));
+		
 			emp_list.put("EMPID", empid);
 			emp_list.put("designation", rs3.getString("designation"));
+			emp_list.put("Type", "Salary Certificate");
+			emp_list.put("Certificate_id",rs.getString("salary_id"));
+			emp_list.put("duration",rs.getString("from_date")+" - "+rs.getString("to_date"));
+
+			
+			
 			System.out.println(rs3.getString("designation"));
 			
 			mymap.add(j,emp_list);
