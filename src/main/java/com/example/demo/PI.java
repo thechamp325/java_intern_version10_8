@@ -49,7 +49,7 @@ public class PI {
 		map.put("value", "hello");
 		return map;
 	}
-	@PostMapping("/pi/emp/autoempid")
+	@GetMapping("/pi/emp/autoempid")
 	public Map<String,String> autoempid() {
 		String sql = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = (Select max(\"Employee_ID\") from public.\"Personal\")";
 		Statement st = null;
