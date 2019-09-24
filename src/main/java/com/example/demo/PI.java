@@ -50,11 +50,12 @@ public class PI {
 		return map;
 	}
 	@PostMapping("/pi/emp/autoempid")
-	public String autoempid() {
+	public Map<String,String> autoempid() {
 		String sql = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = (Select max(\"Employee_ID\") from public.\"Personal\")";
 		Statement st = null;
 		ResultSet rs = null;
 		String newemp = null;
+		Map<String,String> map = new HashMap<String,String>();
 		try {
 			System.out.println("Here");
 			st = db.connect().createStatement();
@@ -65,14 +66,16 @@ public class PI {
 			int part2 = Integer.parseInt(parts[1]); 
 			part2++;
 			newemp=parts[0].concat("p".concat(String.valueOf(part2)));
-			
+			map.put("empid",newemp);
+
 			
 			
 		} catch (SQLException e) {
 			newemp = "Emp000";
+			map.put("empid",newemp);
 			e.printStackTrace();
 		}
-		return newemp;
+		return map;
 		
 	}
 	
