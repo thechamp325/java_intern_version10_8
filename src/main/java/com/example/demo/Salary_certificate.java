@@ -432,7 +432,7 @@ public List live_requestp() throws SQLException {//tested
 	
 	
  	//String false1="false";
-	String sql1="SELECT * FROM public.salary where request= false and principal = false and hod = false ;";
+	String sql1="SELECT * FROM public.salary where request= false and principal = false and hod = true ;";
 	
 	
 	Statement st = db.connect().createStatement();
