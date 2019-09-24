@@ -822,12 +822,14 @@ public List liveprincipal() throws Exception {
 
 
 @PostMapping("/pi/emp/salary/approvehod_salary") //HOD APPROVAL
-public String approvehod(@RequestBody Map<String, Object> payload) throws Exception{
+public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) throws Exception{
 	
 	String salary_id=(String)payload.get("Certificate_id");
 	String empid = (String)payload.get("EMPID");
 	Boolean hod_approval=(Boolean)payload.get("flag");
 	System.out.println(salary_id);
+	Map<String,String> map= new HashMap<String,String>();
+
 	
 //	boolean approval=(boolean)payload.get("hod_approval");
 	
@@ -854,7 +856,8 @@ public String approvehod(@RequestBody Map<String, Object> payload) throws Except
 				}
 
 				stmt1.executeUpdate();	
-				return "HOD decision done";
+				map.put("Status", "Approved by hod");
+				return map;
 			}
 			
 		}
@@ -864,8 +867,9 @@ public String approvehod(@RequestBody Map<String, Object> payload) throws Except
 		
 		e.printStackTrace();
 		System.out.println(e.getMessage());
+		map.put("Status","Unsuccessful");
 	}	
-	return "Unsuccessful attempt";
+	return map;
 }
 
 
