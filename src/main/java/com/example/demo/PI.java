@@ -824,11 +824,14 @@ public List liveprincipal() throws Exception {
 @PostMapping("/pi/emp/salary/approvehod_salary") //HOD APPROVAL
 public String approvehod(@RequestBody Map<String, Object> payload) throws Exception{
 	
-	String empid=(String)payload.get("Employee_ID");
-	System.out.println(empid);
-	boolean approval=(boolean)payload.get("hod_approval");
+	String salary_id=(String)payload.get("Certificate_id");
+	String empid = (String)payload.get("EMPID");
+	Boolean hod_approval=(Boolean)payload.get("flag");
+	System.out.println(salary_id);
 	
-	String sql="SELECT hod,fin,request FROM public.salary WHERE \"Employee_ID\"='"+ empid +"';";
+//	boolean approval=(boolean)payload.get("hod_approval");
+	
+	String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
 	try
 	{
 		Statement stmt = db.connect().createStatement();
@@ -839,9 +842,17 @@ public String approvehod(@RequestBody Map<String, Object> payload) throws Except
    			boolean fin=rs.getBoolean("fin");
 			if( fin==false && request==false)
 			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET hod=? WHERE \"Employee_ID\"='"+empid+"';";
+				String sql1="UPDATE public.salary SET hod=?,request=? WHERE salary_id='"+salary_id+"';";
 				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
-				stmt1.setBoolean(1,approval);
+				stmt1.setBoolean(1,hod_approval);
+				if(hod_approval==false) {
+				stmt1.setBoolean(2,true);
+				}
+				else {
+					stmt1.setBoolean(2,false);
+
+				}
+
 				stmt1.executeUpdate();	
 				return "HOD decision done";
 			}
