@@ -432,7 +432,7 @@ public List live_requestp() throws SQLException {//tested
 	
 	
  	//String false1="false";
-	String sql1="SELECT * FROM public.salary where request= false and principal = false and hod = true ;";
+	String sql1="SELECT * FROM public.salary where request=false and hod = true and fin = false ;";
 	
 	
 	Statement st = db.connect().createStatement();
@@ -480,7 +480,7 @@ List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 		System.out.println(random);
 		Map<String, String> emp_list = new HashMap<String, String>();
 		
-		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false && rs.getBoolean("principal")==false &&rs.getBoolean("hod")==true) {
+		if(rs.getBoolean("fin")==false && rs.getBoolean("request")==false &&rs.getBoolean("hod")==true) {
 			
 			
 			emp_list.put("name", rs1.getString("First_Name")+" "+rs1.getString("Last_Name"));
