@@ -826,7 +826,7 @@ public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) t
 	
 	String salary_id=(String)payload.get("Certificate_id");
 	String empid = (String)payload.get("EMPID");
-	Boolean hod_approval=(Boolean)payload.get("flag");
+	Boolean hod_approval=Boolean.parseBoolean((String) payload.get("flag"));
 	System.out.println(salary_id);
 	Map<String,String> map= new HashMap<String,String>();
 
