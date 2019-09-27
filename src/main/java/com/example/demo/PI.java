@@ -81,8 +81,8 @@ public class PI {
 	
 	
 	@PostMapping("/pi/emp/enter")//tested
-	public String NewUser(@RequestBody Map<String, Object> payload) throws Exception{
-		String s;
+	public Map<String,String> NewUser(@RequestBody Map<String, Object> payload) throws Exception{
+		Map<String,String>s= new HashMap<String,String>();
 		if(admin_log) {
 		System.out.println(payload);
 		Personal p = new Personal();
@@ -104,7 +104,8 @@ catch (SQLException e) {
 }
 		}
 		else {
-			s="Please login";
+			s.put("Status","Please login");
+			return s; 
 		}
 		//System.out.println("here");
 		return s;
@@ -163,17 +164,25 @@ catch (SQLException e) {
 	
 	
 	@PostMapping("/pi/emp/enter/admin/login/details/education")   //for data filling by admin //tested
-	public String data(@RequestBody Map<String, Object> payload) throws Exception{
+	public Map<String,String> data(@RequestBody Map<String, Object> payload) throws Exception{
+		Map<String,String>s= new HashMap<String,String>();
 	if(admin_log) {
-	String log = (String) payload.get("Employee_ID");
+	String log = (String) payload.get("empid");
+	System.out.println(payload);
+//	if(log==null) {
+//		log = "emp12327";
+//	}
 	Education E= new Education();
-	String s = E.entry(payload,log);
+	
+	 s = E.entry(payload,log);
 	
 	
 	return s;
 	}
 	else {
-		return "Please sign in";
+		s.put("Status","Please sign in");
+		return s;
+
 	}
 	
 }
@@ -560,9 +569,220 @@ catch (SQLException e) {
 	
 	
 	
-	
-	
+	@PostMapping("/pi/emp/enter/admin/login/details/publications/awardsrecieved")   //Books
+	public Map<String,String> awards(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map = new HashMap<String,String>();
+	if(admin_log) {
 
+		String log = (String) payload.get("Employee_ID");
+		String award_name = (String) payload.get("noa");
+		String issueing_agency = (String) payload.get("ia");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = award_name+log;
+		
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
+		if(rs.getString("Employee_ID").equals(log)) {
+			String sql = "INSERT INTO public.awards(award_name,issueing_agency,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?);";
+			
+			try {
+				PreparedStatement stmt = db.connect().prepareStatement(sql);
+				stmt.setString(1, award_name);
+				stmt.setString(2, issueing_agency);
+				stmt.setDate(3,date); 
+
+				
+				stmt.setString(4,primarykey);
+				stmt.setString(5, log);
+		
+				System.out.println("LOGIN ID IS10"+log);				
+				stmt.executeUpdate();
+				System.out.println("done");
+			} catch (SQLException e) {
+				
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successfull");
+				return map;
+
+			}
+			
+		
+			map.put("status","Entry Successfull");
+			return map;
+
+		}
+		else {
+			map.put("status","Employee_ID not found");
+			return map;
+		}
+	}
+	else {
+		map.put("status","Please sign in");
+		return map;
+	}
+	
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	@PostMapping("/pi/emp/enter/admin/login/details/publications/patentsgranted")   //Books
+	public Map<String,String> patentsgranted(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map = new HashMap<String,String>();
+	if(admin_log) {
+
+		String log = (String) payload.get("Employee_ID");
+		String author = (String) payload.get("author");
+		String title = (String) payload.get("title");
+		String name = (String) payload.get("name");
+		String issn = (String) payload.get("ISSN");
+		int vol_no = (int) payload.get("vol_no");
+		int issue_no = (int) payload.get("issue_no");
+		int pages = (int) payload.get("pages");
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = String.valueOf(issue_no);
+		
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
+		if(rs.getString("Employee_ID").equals(log)) {
+			String sql = "INSERT INTO public.patentsgranted(author,title,pages,date,prikey,\"Employee_ID\",name,issn,vol_no,issue_no)VALUES (?, ?,?,?,?,?,?,?,?,?);";
+			
+			try {
+				PreparedStatement stmt = db.connect().prepareStatement(sql);
+				stmt.setString(1, author);
+				stmt.setString(2, title);
+				stmt.setInt(3, pages);
+				stmt.setDate(4,date); 
+				
+				stmt.setString(5,primarykey);
+				stmt.setString(6, log);
+				stmt.setString(7, name);
+				stmt.setString(8, issn);
+				stmt.setInt(9, vol_no);
+				stmt.setInt(10, vol_no);
+
+		
+				System.out.println("LOGIN ID IS10"+log);				
+				stmt.executeUpdate();
+				System.out.println("done");
+			} catch (SQLException e) {
+				
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successfull");
+				return map;
+
+			}
+			
+		
+			map.put("status","Entry Successfull");
+			return map;
+
+		}
+		else {
+			map.put("status","Employee_ID not found");
+			return map;
+		}
+	}
+	else {
+		map.put("status","Please sign in");
+		return map;
+	}
+	
+}
+	
+	
+	
+	
+	
+	
+	
+	@PostMapping("/pi/emp/enter/admin/login/details/publications/grantsrecieved")   //Books
+	public Map<String,String> grantsrecieved(@RequestBody Map<String, Object> payload) throws Exception{
+		
+	Map<String,String>map = new HashMap<String,String>();
+	if(admin_log) {
+
+		String log = (String) payload.get("Employee_ID");
+		String pog = (String) payload.get("pog");
+		String ta = (String) payload.get("ta");
+		String fa = (String) payload.get("fa");
+
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
+		java.sql.Date date = new java.sql.Date(date1.getTime());
+		String primarykey = log+ta;
+		
+		String sql1 = "Select \"Employee_ID\" from public.\"Personal\" where \"Employee_ID\" = '"+log+"'";
+		Statement st = db.connect().createStatement();
+		ResultSet rs = st.executeQuery(sql1);
+		if(!rs.next()) {
+			map.put("Status", "Error");
+			return map;
+			}		
+		if(rs.getString("Employee_ID").equals(log)) {
+			String sql = "INSERT INTO public.grantsrecieved(pog,ta,fa,date,prikey,\"Employee_ID\")VALUES (?, ?,?,?,?,?);";
+			
+			try {
+				PreparedStatement stmt = db.connect().prepareStatement(sql);
+				stmt.setString(1, pog);
+				stmt.setString(2, ta);
+				stmt.setString(3, fa);
+				stmt.setDate(4,date); 
+
+				
+				stmt.setString(5,primarykey);
+				stmt.setString(6, log);
+		
+				System.out.println("LOGIN ID IS10"+log);				
+				stmt.executeUpdate();
+				System.out.println("done");
+			} catch (SQLException e) {
+				
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				map.put("status","Not Successfull");
+				return map;
+
+			}
+			
+		
+			map.put("status","Entry Successfull");
+			return map;
+
+		}
+		else {
+			map.put("status","Employee_ID not found");
+			return map;
+		}
+	}
+	else {
+		map.put("status","Please sign in");
+		return map;
+	}
+	
+}
 	
 	@PostMapping("/pi/emp/admin/login")
 	public boolean adminlog(@RequestBody Map<String, Object> payload) throws Exception{
