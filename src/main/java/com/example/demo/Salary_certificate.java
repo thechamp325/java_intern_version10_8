@@ -89,10 +89,13 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 }
 
 public Map<String, String> check_req(@RequestBody Map<String, Object> payload) throws Exception{
-	System.out.println("Finally here");
-	String emp = (String)payload.get("Employee_ID");
+	String emp = (String)payload.get("EMPID");
+	String salaryid;
 	
+	salaryid = (String)payload.get("salaryid");
 	
+	System.out.println(emp);
+
 	Date fromdate;
 	Date todate;
 	
@@ -100,12 +103,11 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 	Map<String, String> map = new HashMap<String, String>();
 
 		
-	String sql="SELECT * FROM public.salary where \"Employee_ID\" = '"+emp+"';";
+	String sql="SELECT * FROM public.salary where salary_id= '"+salaryid+"';";
 	Statement stmt = db.connect().createStatement();
 	ResultSet rs=stmt.executeQuery(sql);
 	int i=1;
-	while(i==1&&rs.next()){ 
-		i=2;
+	while(rs.next()){ 
 		try {
 			 
 			 fromdate=rs.getDate("from_date");

@@ -1020,6 +1020,98 @@ public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws
 	return mymap;
  
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+@GetMapping("/pi/emp/salary_check/admin/salary")
+public List salary_check_cert(@RequestBody Map<String, Object> payload) throws Exception {
+	System.out.println("Here");
+	
+
+	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+	Map<String, String> salary = new HashMap<String, String>();
+
+	
+	Salary_certificate s = new Salary_certificate();
+	System.out.println("Here");
+	salary.putAll(s.check_req(payload));
+	mymap.add(salary);
+	
+	return mymap;
+ 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+@GetMapping("/pi/emp/salary_check/admin")
+public List salary_check_admin() throws Exception {
+//	System.out.println("Here");
+	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+	
+	String sql ="SELECT * FROM public.salary where hod= true and principal = true";
+	Statement stmt = db.connect().createStatement();
+	ResultSet rs=stmt.executeQuery(sql);
+	
+	String sql1 =null;
+	Statement stmt1 =null;
+	ResultSet rs1=null;
+	
+	String sql2 =null;
+	Statement stmt2=null;
+	ResultSet rs2=null;
+	while(rs.next()) {
+		Map<String, String> salary = new HashMap<String, String>();
+
+		System.out.println("Here");
+		sql1 = "SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
+				"	FROM public.\"Personal\" where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
+		 stmt1 = db.connect().createStatement();
+		 rs1=stmt1.executeQuery(sql1);
+		 rs1.next();
+		 
+			 sql2="SELECT designation from public.officeinfo where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
+			
+			 stmt2 = db.connect().createStatement();
+			 rs2=stmt2.executeQuery(sql2);
+			rs2.next();
+		
+		
+		salary.put("EMPID",rs.getString("Employee_ID"));
+		salary.put("name",rs1.getString("First_Name"));
+		salary.put("lastname",rs1.getString("Last_Name"));
+		salary.put("designation",rs2.getString("designation"));
+		salary.put("Type","Salary Certificate");
+		salary.put("salaryid",rs.getString("salary_id"));
+
+		System.out.println(salary);
+
+		mymap.add(salary);
+	}
+	
+	
+	return mymap;
+ 
+}
+
 
 
 //LIVE REQUEST HOD
@@ -1067,7 +1159,7 @@ public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) t
    			boolean fin=rs.getBoolean("fin");
 			if( fin==false && request==false)
 			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET hod=?,request=? WHERE salary_id='"+salary_id+"';";
+				String sql1="UPDATE public.salary SET hod=?,fin=? WHERE salary_id='"+salary_id+"';";
 				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
 				stmt1.setBoolean(1,hod_approval);
 				if(hod_approval==false) {
