@@ -89,7 +89,7 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 }
 
 public Map<String, String> check_req(@RequestBody Map<String, Object> payload) throws Exception{
-	String emp = (String)payload.get("EMPID");
+	String emp = (String)payload.get("Employee_ID");
 	String salaryid;
 	
 	salaryid = (String)payload.get("salaryid");

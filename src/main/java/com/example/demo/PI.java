@@ -290,7 +290,7 @@ catch (SQLException e) {
 		String ISSN = (String) payload.get("ISSN");
 		int vol_no = (int)payload.get("vol_no");
 		int issue_no = (int)payload.get("issue_no");
-		int pages = (int)payload.get("pages");
+		long pages = (long)payload.get("pages");
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		java.util.Date date1 = sdf1.parse((String)payload.get("date"));
 		java.sql.Date date = new java.sql.Date(date1.getTime());
@@ -316,7 +316,7 @@ catch (SQLException e) {
 				stmt.setString(4, ISSN);
 				stmt.setInt(5, vol_no);
 				stmt.setInt(6, issue_no);
-				stmt.setInt(7, pages);
+				stmt.setLong(7, pages);
 			    stmt.setDate(8,date);
 				
 				stmt.setString(9,primarykey);
@@ -1000,10 +1000,12 @@ public Map<String,String> salary_request(@RequestBody Map<String, Object> payloa
 
 //request
 @GetMapping("/pi/emp/salary_check")
-public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
+public List salary_check(@RequestParam("Employee_ID") String Employee_ID,@RequestParam("salaryid") String Salary_ID) throws Exception {
 	System.out.println("Here");
 	Map<String, Object> payload = new HashMap<String, Object>();
 	payload.put("Employee_ID",Employee_ID);
+	payload.put("salaryid",Salary_ID);
+
 
 	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
 	Map<String, String> salary = new HashMap<String, String>();
@@ -1013,9 +1015,9 @@ public List salary_check(@RequestParam("Employee_ID") String Employee_ID) throws
 	salary.putAll(s.check_req(payload));
 	mymap.add(0,salary);
 	
-	Map<String, String> test = new HashMap<String, String>();
-	System.out.println(test.get("PRINCIPAL"));
-	test.put("PRINCIPAL","true");
+//	Map<String, String> test = new HashMap<String, String>();
+//	System.out.println(test.get("PRINCIPAL"));
+//	test.put("PRINCIPAL","true");
 
 	return mymap;
  
