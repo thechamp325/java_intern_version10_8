@@ -26,7 +26,7 @@ public Map<String,String> req(@RequestBody Map<String, Object> payload) throws E
 	//CREATE A NEW TABLE SUCH THAT IT CONTAINS APPLICATION NUMBER<EMPIDdate>
 	 
 	
-	String emp_id = (String)payload.get("Employee_ID");
+	String emp_id = (String)payload.get("empid");
 	
 	
 	SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
@@ -173,6 +173,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 					
 					int pay=rs2.getInt(3);
+					
 					System.out.println("3rd done");
 
 					String designation=rs2.getString(2);

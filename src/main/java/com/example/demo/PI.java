@@ -161,7 +161,31 @@ catch (SQLException e) {
 	
 }
 	
-	
+	@GetMapping("pi/emp/allemps")
+	public List<Map<String,String>> allemps(){
+		Map<String,String>map= new HashMap<String,String>();
+		List<Map<String,String>>s=new ArrayList<Map<String,String>>();
+		Statement st = null;
+		ResultSet rs = null;
+		try {
+		String sql1 = "Select public.\"Personal\".\"Employee_ID\", public.\"Personal\".\"First_Name\", public.\"Personal\".\"Middle_Name\", public.\"Personal\".\"Last_Name\", public.officeinfo.designation from public.\"Personal\" INNER JOIN public.officeinfo ON  public.\"Personal\".\"Employee_ID\" = public.officeinfo.\"Employee_ID\"";
+		 st = db.connect().createStatement();
+		 rs = st.executeQuery(sql1);
+		 while(rs.next()) {
+			 map.put("EMPID", rs.getString("Employee_ID"));
+			 map.put("name", rs.getString("First_Name"));
+			 map.put("lastname",rs.getString("Last_Name"));
+			 map.put("designation", rs.getString("designation"));
+				s.add(map);
+			}
+		}
+		catch(Exception e){
+			map.put("Status", "Error");
+			s.add(map);			
+		}
+		 return s;
+
+	}
 	
 	@PostMapping("/pi/emp/enter/admin/login/details/education")   //for data filling by admin //tested
 	public Map<String,String> data(@RequestBody Map<String, Object> payload) throws Exception{
@@ -1014,6 +1038,7 @@ public List salary_check(@RequestParam("Employee_ID") String Employee_ID,@Reques
 	System.out.println("Here");
 	salary.putAll(s.check_req(payload));
 	mymap.add(0,salary);
+	System.out.println(mymap);
 	
 //	Map<String, String> test = new HashMap<String, String>();
 //	System.out.println(test.get("PRINCIPAL"));
@@ -1102,7 +1127,7 @@ public List salary_check_admin() throws Exception {
 		salary.put("lastname",rs1.getString("Last_Name"));
 		salary.put("designation",rs2.getString("designation"));
 		salary.put("Type","Salary Certificate");
-		salary.put("salaryid",rs.getString("salary_id"));
+		salary.put("Certificate_id",rs.getString("salary_id"));
 
 		System.out.println(salary);
 
@@ -1139,14 +1164,14 @@ public List liveprincipal() throws Exception {
 
 
 @PostMapping("/pi/emp/salary/approvehod_salary") //HOD APPROVAL
-public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) throws Exception{
+public Map<String,String> approvehod(@RequestBody List<Map<String, Object>> payload) throws Exception{
 	
-	String salary_id=(String)payload.get("Certificate_id");
-	String empid = (String)payload.get("EMPID");
-	Boolean hod_approval=Boolean.parseBoolean((String) payload.get("flag"));
+	String salary_id=(String)payload.get(0).get("Certificate_id");
+	String empid = (String)payload.get(0).get("EMPID");
+	Boolean hod_approval= (Boolean) payload.get(0).get("flag");
 	System.out.println(salary_id);
 	Map<String,String> map= new HashMap<String,String>();
-
+    
 	
 //	boolean approval=(boolean)payload.get("hod_approval");
 	
@@ -1192,11 +1217,11 @@ public Map<String,String> approvehod(@RequestBody Map<String, Object> payload) t
 
 
 @PostMapping("/pi/emp/salary/approveprinci") //PRINCIPAL APPROVAL
-public Map<String, String> approvep(@RequestBody Map<String, Object> payload) throws Exception{
+public Map<String, String> approvep(@RequestBody List<Map<String, Object>> payload) throws Exception{
 	
-	String salary_id=(String)payload.get("Certificate_id");
-	String empid = (String)payload.get("EMPID");
-	Boolean princi_approval=Boolean.parseBoolean((String) payload.get("flag"));
+	String salary_id=(String)payload.get(0).get("Certificate_id");
+	String empid = (String)payload.get(0).get("EMPID");
+	Boolean princi_approval= (Boolean) payload.get(0).get("flag");
 	System.out.println(salary_id);
 	Map<String,String> map= new HashMap<String,String>();
 
@@ -1215,7 +1240,7 @@ public Map<String, String> approvep(@RequestBody Map<String, Object> payload) th
    			boolean hod = rs.getBoolean("hod");
 			if( fin==false && request==false&& hod == true)
 			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET principal=?,request=? WHERE salary_id='"+salary_id+"';";
+				String sql1="UPDATE public.salary SET principal=?,fin=? WHERE salary_id='"+salary_id+"';";
 				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
 				stmt1.setBoolean(1,princi_approval);
 				
