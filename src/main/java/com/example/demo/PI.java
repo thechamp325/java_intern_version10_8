@@ -212,7 +212,7 @@ catch (SQLException e) {
 }
 	
 	
-	
+	//USER INFORMATION ENTRY
 	
 	
 	@PostMapping("/pi/emp/enter/admin/login/details/publications/national_journal")   //national international journal publications functions 
@@ -1009,264 +1009,10 @@ System.out.println("Approval pending");
 	
 	
 	
-	
-@PostMapping("/pi/emp/salary_certificate")
-public Map<String,String> salary_request(@RequestBody Map<String, Object> payload) throws Exception {
-	Map<String, String> salary = new HashMap<String, String>();
-	System.out.println("hello");
-	Salary_certificate s = new Salary_certificate();
-	s.req(payload);
-	
-    salary.put("Status","Request Pending");
-	return salary;
-	
-}
-
-//request
-@GetMapping("/pi/emp/salary_check")
-public List salary_check(@RequestParam("Employee_ID") String Employee_ID,@RequestParam("salaryid") String Salary_ID) throws Exception {
-	System.out.println("Here");
-	Map<String, Object> payload = new HashMap<String, Object>();
-	payload.put("Employee_ID",Employee_ID);
-	payload.put("salaryid",Salary_ID);
-
-
-	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
-	Map<String, String> salary = new HashMap<String, String>();
-	
-	Salary_certificate s = new Salary_certificate();
-	System.out.println("Here");
-	salary.putAll(s.check_req(payload));
-	mymap.add(0,salary);
-	System.out.println(mymap);
-	
-//	Map<String, String> test = new HashMap<String, String>();
-//	System.out.println(test.get("PRINCIPAL"));
-//	test.put("PRINCIPAL","true");
-
-	return mymap;
- 
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-@GetMapping("/pi/emp/salary_check/admin/salary")
-public List salary_check_cert(@RequestBody Map<String, Object> payload) throws Exception {
-	System.out.println("Here");
-	
-
-	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
-	Map<String, String> salary = new HashMap<String, String>();
-
-	
-	Salary_certificate s = new Salary_certificate();
-	System.out.println("Here");
-	salary.putAll(s.check_req(payload));
-	mymap.add(salary);
-	
-	return mymap;
- 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-@GetMapping("/pi/emp/salary_check/admin")
-public List salary_check_admin() throws Exception {
-//	System.out.println("Here");
-	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
-	
-	String sql ="SELECT * FROM public.salary where hod= true and principal = true";
-	Statement stmt = db.connect().createStatement();
-	ResultSet rs=stmt.executeQuery(sql);
-	
-	String sql1 =null;
-	Statement stmt1 =null;
-	ResultSet rs1=null;
-	
-	String sql2 =null;
-	Statement stmt2=null;
-	ResultSet rs2=null;
-	while(rs.next()) {
-		Map<String, String> salary = new HashMap<String, String>();
-
-		System.out.println("Here");
-		sql1 = "SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
-				"	FROM public.\"Personal\" where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
-		 stmt1 = db.connect().createStatement();
-		 rs1=stmt1.executeQuery(sql1);
-		 rs1.next();
-		 
-			 sql2="SELECT designation from public.officeinfo where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
-			
-			 stmt2 = db.connect().createStatement();
-			 rs2=stmt2.executeQuery(sql2);
-			rs2.next();
-		
-		
-		salary.put("EMPID",rs.getString("Employee_ID"));
-		salary.put("name",rs1.getString("First_Name"));
-		salary.put("lastname",rs1.getString("Last_Name"));
-		salary.put("designation",rs2.getString("designation"));
-		salary.put("Type","Salary Certificate");
-		salary.put("Certificate_id",rs.getString("salary_id"));
-
-		System.out.println(salary);
-
-		mymap.add(salary);
-	}
+	//*********************NO OBJECTION CERTIFICATE *************************
 	
 	
-	return mymap;
- 
-}
-
-
-
-//LIVE REQUEST HOD
-@GetMapping("/pi/emp/livehod")            //tested
-public List livehod() throws Exception {
-	
-	Salary_certificate s = new Salary_certificate();
-
-	return s.live_reqhod();	
-}
-
-
-
-//LIVE REQUEST PRINCIPAL		
-@GetMapping("/pi/emp/liveprincipal")            //tested
-public List liveprincipal() throws Exception {
-	
-	Salary_certificate s = new Salary_certificate();
-	return s.live_requestp();
-		
-   
-}
-
-
-@PostMapping("/pi/emp/salary/approvehod_salary") //HOD APPROVAL
-public Map<String,String> approvehod(@RequestBody List<Map<String, Object>> payload) throws Exception{
-	
-	String salary_id=(String)payload.get(0).get("Certificate_id");
-	String empid = (String)payload.get(0).get("EMPID");
-	Boolean hod_approval= (Boolean) payload.get(0).get("flag");
-	System.out.println(salary_id);
-	Map<String,String> map= new HashMap<String,String>();
-    
-	
-//	boolean approval=(boolean)payload.get("hod_approval");
-	
-	String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
-	try
-	{
-		Statement stmt = db.connect().createStatement();
-		ResultSet rs=stmt.executeQuery(sql);//problem here
-		while(rs.next())
-		{
-			boolean request=rs.getBoolean("request");
-   			boolean fin=rs.getBoolean("fin");
-			if( fin==false && request==false)
-			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET hod=?,fin=? WHERE salary_id='"+salary_id+"';";
-				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
-				stmt1.setBoolean(1,hod_approval);
-				if(hod_approval==false) {
-				stmt1.setBoolean(2,true);
-				}
-				else {
-					stmt1.setBoolean(2,false);
-
-				}
-
-				stmt1.executeUpdate();	
-				map.put("Status", "Approved by hod");
-				return map;
-			}
-			
-		}
-				
-	}
-	catch (SQLException e) {
-		
-		e.printStackTrace();
-		System.out.println(e.getMessage());
-		map.put("Status","Unsuccessful");
-	}	
-	return map;
-}
-
-
-
-@PostMapping("/pi/emp/salary/approveprinci") //PRINCIPAL APPROVAL
-public Map<String, String> approvep(@RequestBody List<Map<String, Object>> payload) throws Exception{
-	
-	String salary_id=(String)payload.get(0).get("Certificate_id");
-	String empid = (String)payload.get(0).get("EMPID");
-	Boolean princi_approval= (Boolean) payload.get(0).get("flag");
-	System.out.println(salary_id);
-	Map<String,String> map= new HashMap<String,String>();
-
-	
-//	boolean approval=(boolean)payload.get("hod_approval");
-	
-	String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
-	try
-	{
-		Statement stmt = db.connect().createStatement();
-		ResultSet rs=stmt.executeQuery(sql);//problem here
-		while(rs.next())
-		{
-			boolean request=rs.getBoolean("request");
-   			boolean fin=rs.getBoolean("fin");
-   			boolean hod = rs.getBoolean("hod");
-			if( fin==false && request==false&& hod == true)
-			{	//latest request of salary certificate
-				String sql1="UPDATE public.salary SET principal=?,fin=? WHERE salary_id='"+salary_id+"';";
-				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
-				stmt1.setBoolean(1,princi_approval);
-				
-				stmt1.setBoolean(2,true);
-				
-				stmt1.executeUpdate();	
-				map.put("Status", "Approved by principal");
-				return map;
-			}
-			
-		}
-				
-	}
-	catch (SQLException e) {
-		
-		e.printStackTrace();
-		System.out.println(e.getMessage());
-		map.put("Status","Unsuccessful");
-	}	
-	return map;
-
-}
-	
-	
-	
-//No objection certificate request
+//REQUEST
 @PostMapping("/pi/emp/noc")
 public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) throws Exception {
 	Map<String, String> noc = new HashMap<String, String>();
@@ -1278,7 +1024,7 @@ public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) 
 	return noc;	
 }
 		
-
+//CHECK REQUEST
 	@GetMapping("/pi/emp/noc_check")
 	public List noc_check(@RequestParam("Employee_ID") String Employee_ID) throws Exception {
 		System.out.println("Here");
@@ -1324,8 +1070,8 @@ public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) 
 			
 			
 			
-			
-			@PostMapping("/pi/emp/noc/approvehod") //HOD APPROVAL
+			//HOD APPROVAL
+			@PostMapping("/pi/emp/noc/approvehod") 
 			public String approvehod_noc(@RequestBody Map<String, Object> payload) throws Exception{
 				
 				String empid=(String)payload.get("Employee_ID");
@@ -1363,8 +1109,8 @@ public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) 
 			}
 
 
-
-			@PostMapping("/pi/emp/noc/approveprinci") //PRINCIPAL APPROVAL
+			 //PRINCIPAL APPROVAL
+			@PostMapping("/pi/emp/noc/approveprinci")
 			public String approvep_noc(@RequestBody Map<String, Object> payload) throws Exception{
 				
 				String empid=(String)payload.get("Employee_ID");
@@ -1413,14 +1159,415 @@ public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) 
 				}		
 				return "Unsuccessful attempt";
 			}
+	
+			//******************************SALARY CERTIFICATE***************************
+			
+			//REQUEST
+			@PostMapping("/pi/emp/salary_certificate")
+			public Map<String,String> salary_request(@RequestBody Map<String, Object> payload) throws Exception {
+				Map<String, String> salary = new HashMap<String, String>();
+				System.out.println("hello");
+				Salary_certificate s = new Salary_certificate();
+				s.req(payload);
+				
+			    salary.put("Status","Request Pending");
+				return salary;
+				
+			}
+
+			//CHECK REQUEST
+			@GetMapping("/pi/emp/salary_check")
+			public List salary_check(@RequestParam("Employee_ID") String Employee_ID,@RequestParam("salaryid") String Salary_ID) throws Exception {
+				System.out.println("Here");
+				Map<String, Object> payload = new HashMap<String, Object>();
+				payload.put("Employee_ID",Employee_ID);
+				payload.put("salaryid",Salary_ID);
+
+				System.out.println(Employee_ID);
+				System.out.println(Salary_ID);
+				List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+				Map<String, String> salary = new HashMap<String, String>();
+				
+				Salary_certificate s = new Salary_certificate();
+				System.out.println("Here");
+				salary.putAll(s.check_req(payload));
+				mymap.add(0,salary);
+				System.out.println(mymap);
+
+				return mymap;
+			 
+			}
 		
 
-@GetMapping("/pi/emp/exp_certificate")
+			@GetMapping("/pi/emp/salary_check/admin/salary")
+			public List salary_check_cert(@RequestBody Map<String, Object> payload) throws Exception {
+				System.out.println("Here");
+				
+
+				List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+				Map<String, String> salary = new HashMap<String, String>();
+
+				
+				Salary_certificate s = new Salary_certificate();
+				System.out.println("Here");
+				salary.putAll(s.check_req(payload));
+				mymap.add(salary);
+				
+				return mymap;
+			 
+			}
+
+			@GetMapping("/pi/emp/salary_check/admin")
+			public List salary_check_admin() throws Exception {
+//				System.out.println("Here");
+				List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+				
+				String sql ="SELECT * FROM public.salary where hod= true and principal = true";
+				Statement stmt = db.connect().createStatement();
+				ResultSet rs=stmt.executeQuery(sql);
+				
+				String sql1 =null;
+				Statement stmt1 =null;
+				ResultSet rs1=null;
+				
+				String sql2 =null;
+				Statement stmt2=null;
+				ResultSet rs2=null;
+				while(rs.next()) {
+					Map<String, String> salary = new HashMap<String, String>();
+
+					System.out.println("Here");
+					sql1 = "SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
+							"	FROM public.\"Personal\" where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
+					 stmt1 = db.connect().createStatement();
+					 rs1=stmt1.executeQuery(sql1);
+					 rs1.next();
+					 
+						 sql2="SELECT designation from public.officeinfo where \"Employee_ID\"='"+rs.getString("Employee_ID")+"';";
+						
+						 stmt2 = db.connect().createStatement();
+						 rs2=stmt2.executeQuery(sql2);
+						rs2.next();
+					
+					
+					salary.put("EMPID",rs.getString("Employee_ID"));
+					salary.put("name",rs1.getString("First_Name"));
+					salary.put("lastname",rs1.getString("Last_Name"));
+					salary.put("designation",rs2.getString("designation"));
+					salary.put("Type","Salary Certificate");
+					salary.put("Certificate_id",rs.getString("salary_id"));
+
+					System.out.println(salary);
+
+					mymap.add(salary);
+				}
+				
+				
+				return mymap;
+			 
+			}
+
+			//LIVE REQUEST HOD
+			@GetMapping("/pi/emp/livehod")            //tested
+			public List livehod() throws Exception {
+				
+				Salary_certificate s = new Salary_certificate();
+
+				return s.live_reqhod();	
+			}
+
+
+
+			//LIVE REQUEST PRINCIPAL		
+			@GetMapping("/pi/emp/liveprincipal")            //tested
+			public List liveprincipal() throws Exception {
+				
+				Salary_certificate s = new Salary_certificate();
+				return s.live_requestp();
+					
+			   
+			}
+			
+			//HOD APPROVAL
+
+			@PostMapping("/pi/emp/salary/approvehod_salary") 
+			public Map<String,String> approvehod(@RequestBody List<Map<String, Object>> payload) throws Exception{
+				
+				String salary_id=(String)payload.get(0).get("Certificate_id");
+				String empid = (String)payload.get(0).get("EMPID");
+				Boolean hod_approval= (Boolean) payload.get(0).get("flag");
+				System.out.println(salary_id);
+				Map<String,String> map= new HashMap<String,String>();
+			    
+				
+//				boolean approval=(boolean)payload.get("hod_approval");
+				
+				String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
+				try
+				{
+					Statement stmt = db.connect().createStatement();
+					ResultSet rs=stmt.executeQuery(sql);//problem here
+					while(rs.next())
+					{
+						boolean request=rs.getBoolean("request");
+			   			boolean fin=rs.getBoolean("fin");
+						if( fin==false && request==false)
+						{	//latest request of salary certificate
+							String sql1="UPDATE public.salary SET hod=?,fin=? WHERE salary_id='"+salary_id+"';";
+							PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+							stmt1.setBoolean(1,hod_approval);
+							if(hod_approval==false) {
+							stmt1.setBoolean(2,true);
+							}
+							else {
+								stmt1.setBoolean(2,false);
+
+							}
+
+							stmt1.executeUpdate();	
+							map.put("Status", "Approved by hod");
+							return map;
+						}
+						
+					}
+							
+				}
+				catch (SQLException e) {
+					
+					e.printStackTrace();
+					System.out.println(e.getMessage());
+					map.put("Status","Unsuccessful");
+				}	
+				return map;
+			}
+
+
+			//PRINCIPAL APPROVAL
+			
+			@PostMapping("/pi/emp/salary/approveprinci") 
+			public Map<String, String> approvep(@RequestBody List<Map<String, Object>> payload) throws Exception{
+				
+				String salary_id=(String)payload.get(0).get("Certificate_id");
+				String empid = (String)payload.get(0).get("EMPID");
+				Boolean princi_approval= (Boolean) payload.get(0).get("flag");
+				System.out.println(salary_id);
+				Map<String,String> map= new HashMap<String,String>();
+
+				
+//				boolean approval=(boolean)payload.get("hod_approval");
+				
+				String sql="SELECT hod,fin,request FROM public.salary WHERE salary_id='"+ salary_id +"';";
+				try
+				{
+					Statement stmt = db.connect().createStatement();
+					ResultSet rs=stmt.executeQuery(sql);//problem here
+					while(rs.next())
+					{
+						boolean request=rs.getBoolean("request");
+			   			boolean fin=rs.getBoolean("fin");
+			   			boolean hod = rs.getBoolean("hod");
+						if( fin==false && request==false&& hod == true)
+						{	//latest request of salary certificate
+							String sql1="UPDATE public.salary SET principal=?,fin=? WHERE salary_id='"+salary_id+"';";
+							PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+							stmt1.setBoolean(1,princi_approval);
+							
+							stmt1.setBoolean(2,true);
+							
+							stmt1.executeUpdate();	
+							map.put("Status", "Approved by principal");
+							return map;
+						}
+						
+					}
+							
+				}
+				catch (SQLException e) {
+					
+					e.printStackTrace();
+					System.out.println(e.getMessage());
+					map.put("Status","Unsuccessful");
+				}	
+				return map;
+
+			}
+				
+			
+			
+					/* EXPERIENCE CERTIFICATE COMPONENTS::
+					 * 1.)REQUEST
+					 * 2.)CHECK
+					 * 3.)HOD APPROVAL
+					 * 4.)PRINCIPAL APPROVAL
+					 * 5.)LIVE HOD REQUESTS
+					 * 6.)LIVE PRINCIPAL REQUESTS			
+					 */
+			
+//REQUEST							
+@PostMapping("/pi/emp/exp_certificate")
 public Map<String,String> exp_request(@RequestBody Map<String, Object> payload) throws Exception {
 	Experience_cert e = new Experience_cert();
-	return e.Employee_exp(log);
+	return e.exp_request(payload);
 	
 }
+
+
+//REQUEST CHECK
+@GetMapping("/pi/emp/exp/experience_check")
+public List exp_check(@RequestParam("Employee_ID") String Employee_ID,@RequestParam("expid") String Experience_ID) throws Exception {
+	
+	System.out.println("Here");
+	Map<String, Object> payload = new HashMap<String, Object>();
+	payload.put("Employee_ID",Employee_ID);
+	payload.put("expid",Experience_ID);
+
+
+	List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+	Map<String, String> experience = new HashMap<String, String>();
+	
+	Experience_cert e = new Experience_cert();
+	System.out.println("Here");
+	
+	experience.putAll(e.Employee_exp(payload));
+	mymap.add(0,experience);
+	
+	System.out.println(mymap);
+
+	return mymap;
+}
+
+//HOD APPROVAL
+@PostMapping("/pi/emp/exp/approvehod_salary")
+public Map<String,String> exp_approvehod(@RequestBody List<Map<String, Object>> payload) throws Exception{
+	
+	String exprelid=(String)payload.get(0).get("Certificate_id");
+	String empid = (String)payload.get(0).get("EMPID");
+	Boolean hod_approval= (Boolean) payload.get(0).get("flag");
+	System.out.println(exprelid);
+	Map<String,String> map= new HashMap<String,String>();
+    
+
+	
+	String sql="SELECT hod,fin,request FROM public.exprelcert WHERE exprelid='"+ exprelid +"';";
+	try
+	{
+		Statement stmt = db.connect().createStatement();
+		ResultSet rs=stmt.executeQuery(sql);//problem here
+		while(rs.next())
+		{
+			boolean request=rs.getBoolean("request");
+   			boolean fin=rs.getBoolean("fin");
+			if( fin==false && request==false)
+			{	//latest request of salary certificate
+				String sql1="UPDATE public.exprelcert SET hod=?,fin=? WHERE exprelid='"+exprelid+"';";
+				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+				stmt1.setBoolean(1,hod_approval);
+				if(hod_approval==false) {
+				stmt1.setBoolean(2,true);
+				}
+				else {
+					stmt1.setBoolean(2,false);
+				}
+
+				stmt1.executeUpdate();	
+				map.put("Status", "Approved by hod");
+				return map;
+			}
+			
+		}
+				
+	}
+	catch (SQLException e) {
+		
+		e.printStackTrace();
+		System.out.println(e.getMessage());
+		map.put("Status","Unsuccessful");
+	}	
+	return map;
+}
+
+//PRINCIPAL APPROVAL
+@PostMapping("/pi/emp/exp/approveprinci")
+public Map<String, String> exp_approvep(@RequestBody List<Map<String, Object>> payload) throws Exception{
+	
+	String exprelid=(String)payload.get(0).get("Certificate_id");
+	String empid = (String)payload.get(0).get("EMPID");
+	Boolean princi_approval= (Boolean) payload.get(0).get("flag");
+//	System.out.println(empid);
+//
+//	System.out.println(exprelid);
+	Map<String,String> map= new HashMap<String,String>();
+
+		
+	String sql="SELECT principal,hod,fin,request FROM public.exprelcert WHERE exprelid='"+exprelid+"';";
+	try
+	{
+		Statement stmt = db.connect().createStatement();
+		ResultSet rs=stmt.executeQuery(sql);//problem here
+		while(rs.next())
+		{
+			boolean request=rs.getBoolean("request");
+			System.out.println("request ="+request);
+   			boolean fin=rs.getBoolean("fin");
+   			boolean hod = rs.getBoolean("hod");
+   			boolean principal=rs.getBoolean("principal");
+			System.out.println("request ="+request+"fin="+fin+"hod="+hod+" princi="+principal);
+
+			if( fin==false && request==false&& hod==true &&principal==false)
+			{	//latest request of salary certificate
+				System.out.println("inside if");
+				String sql1="UPDATE public.exprelcert SET principal=?,fin=? WHERE exprelid='"+exprelid+"';";
+				PreparedStatement stmt1 = db.connect().prepareStatement(sql1);
+				stmt1.setBoolean(1,princi_approval);
+				
+				stmt1.setBoolean(2,true);
+				
+				stmt1.executeUpdate();	
+				map.put("Status", "Approved by principal");
+				return map;
+			}
+			
+		}
+				
+	}
+	catch (SQLException e) {
+		
+		e.printStackTrace();
+		System.out.println(e.getMessage());
+		map.put("Status","Unsuccessful");
+	}	
+	return map;
+
+}
+
+
+//LIVE REQUEST HOD
+@GetMapping("/pi/emp/exp/livehod")            //tested
+public List exp_livehod() throws Exception {
+	
+	Experience_cert e = new Experience_cert();
+
+	return e.exp_live_reqhod();	
+}
+
+
+
+//LIVE REQUEST PRINCIPAL		
+@GetMapping("/pi/emp/exp/liveprincipal")            //tested
+public List exp_liveprincipal() throws Exception {
+	
+	Experience_cert e = new Experience_cert();
+	return e.exp_live_requestp();
+		
+ 
+}
+
+
+	
+	
+
+
+
 
 
 @GetMapping("/pi/emp/list")    //not tested 
