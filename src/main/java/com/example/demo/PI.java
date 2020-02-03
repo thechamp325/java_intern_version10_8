@@ -1182,6 +1182,30 @@ public Map<String,String> noc_request(@RequestBody Map<String, Object> payload) 
 				Map<String, Object> payload = new HashMap<String, Object>();
 				payload.put("Employee_ID",Employee_ID);
 				payload.put("salaryid",Salary_ID);
+				payload.put("status","No");
+
+				System.out.println(Employee_ID);
+				System.out.println(Salary_ID);
+				List<Map<String, String>> mymap = new ArrayList<Map<String, String>>();
+				Map<String, String> salary = new HashMap<String, String>();
+				
+				Salary_certificate s = new Salary_certificate();
+				System.out.println("Here");
+				salary.putAll(s.check_req(payload));
+				mymap.add(0,salary);
+				System.out.println(mymap);
+
+				return mymap;
+			 
+			}
+			@GetMapping("/pi/emp/staff/salary")
+			public List salary(@RequestParam("Employee_ID") String Employee_ID,@RequestParam("salaryid") String Salary_ID) throws Exception {
+				System.out.println("Here");
+				Map<String, Object> payload = new HashMap<String, Object>();
+				payload.put("Employee_ID",Employee_ID);
+				payload.put("salaryid",Salary_ID);
+				payload.put("status","Yes");
+
 
 				System.out.println(Employee_ID);
 				System.out.println(Salary_ID);

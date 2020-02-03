@@ -127,7 +127,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 				boolean field5= rs.getBoolean("admin_approval");//if admin printed the report
 				System.out.println(field1+" "+field2+" "+field3+" "+field4+" "+field5);
 				
-				if(field3==false) 
+				if(payload.get("status").equals("No")) 
 				{
 					String PRINCIPAL = Boolean.toString(field1);
 					String HOD = Boolean.toString(field2);
@@ -143,7 +143,7 @@ public Map<String, String> check_req(@RequestBody Map<String, Object> payload) t
 					
 						
 				}
-				else if( field1==true && field2==true && field3==true && field4==false )
+				else if( field1==true && field2==true && field3==true && field4==false &&payload.get("status").equals("Yes"))
 				{
 					
 					String sql4="SELECT \"Employee_ID\", \"Salutation\", \"First_Name\", \"Middle_Name\", \"Last_Name\", \"Father_Name\", \"Mother_Name\"\r\n" + 
